@@ -16,7 +16,7 @@ user/riscv64/
 user/target/
 
 # Gathering place of images
-#easy-fs-fuse/
+easy-fs-fuse/
 
 # a copy of user programs debug build in "user/target/*"(for gdb)
 os/user/
