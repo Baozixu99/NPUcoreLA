@@ -1,8 +1,9 @@
-TARGET := riscv64gc-unknown-none-elf
+#TARGET := riscv64gc-unknown-none-elf
+TARGET := loongarch64-unknown-linux-gnu
 TESTDIR := ./user_C_program/user
 MODE := debug
 
-ifeq ($(BOARD), 2k500)
+ifeq ($(BOARD), 2k1000)
 	TARGET := loongarch64-unknown-linux-gnu
 endif
 ifeq ($(BOARD), laqemu)
