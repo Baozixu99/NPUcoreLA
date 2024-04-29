@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## read the document to prepare the host environment
-
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 if [ -f ./2kfs.img ] ; then
    echo "2kfs.img exist! removed"
    rm -f ./2kfs.img
@@ -45,7 +45,7 @@ if [ $? -ne 0 ] ; then
   exit -5
 fi
 
-sudo bash -c "lzcat /tmp/qemu/2k1000/rootfs-la.cpio.lzma | cpio -idmv -D /mnt &> ./cpio.log"
+sudo bash -c "lzcat ${SCRIPTPATH}/rootfs-la.cpio.lzma | cpio -idmv -D /mnt &> ./cpio.log"
 
 if [ $? -ne 0 ] ; then
   echo "unpack rootfs failed"
@@ -54,7 +54,7 @@ fi
 
 sudo mkdir /mnt/boot 
 
-sudo cp /tmp/qemu/2k1000/uImage /mnt/boot/
+sudo cp ${SCRIPTPATH}/uImage /mnt/boot/
 
 sudo umount /mnt
 
