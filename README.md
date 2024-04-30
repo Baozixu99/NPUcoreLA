@@ -14,9 +14,9 @@ Loong Arch GCC 12：百度网盘链接: https://pan.baidu.com/s/1xHriNdgcNzzn-X9
 
 `./runqemu`启动qmeu,并在启动过程中按C进入uboot命令行
 
-`=> tftpboot uImage` 加载内核镜像
+=> `tftpboot uImage` 加载内核镜像
 
-`=> bootm` 进入系统
+=> `bootm` 进入系统
 
 ## 其他
 `make clean`: 清理已经编译的项目（包括用户程序， 系统和FAT镜像）
