@@ -45,3 +45,5 @@ Doc/**/*.png
 util/qemu-2k500/
 util/qemu-2k1000/nand.dat
 util/qemu-2k1000/qemu.log
+util/qemu-2k1000/2k1000/2kfs.img
+util/qemu-2k1000/2k1000/cpio.log
