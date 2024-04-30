@@ -1,5 +1,6 @@
 # Building
 TARGET := loongarch64-unknown-linux-gnu
+# TARGET := loongarch64-linux-gnu
 MODE := debug
 CORE_NUM := 1
 
@@ -10,7 +11,8 @@ KERNEL_UIMG = $(KERNEL_ELF).ui
 ARCH=${shell echo ${TARGET}|cut -d- -f1 |grep -o "^[a-zA-Z]\+[[:digit:]]*"}
 # BOARD
 BOARD ?= laqemu
-LDBOARD = la2k500
+#LDBOARD = la2k500
+LDBOARD = la2k1000
 
 SDDEV := $(shell lsblk -do NAME | grep sd | tail -1)
 SDCARD := /dev/$(SDDEV)
@@ -18,20 +20,17 @@ SDCARD := /dev/$(SDDEV)
 # Disassembly
 DISASM ?= -x
 
-ifeq ($(MODE), debug)
-ifeq ($(BOARD), 2k500)
-	LA_2K500_DISABLE_EH_FRAME := -D EH_ENABLED
-endif
-endif
-
-ifeq ($(BOARD), 2K500)
-	BOARD = 2k500
+ifeq ($(BOARD), 2K1000)
+	BOARD = 2k1000
 endif
 
 # Binutils
 OBJCOPY := loongarch64-unknown-linux-gnu-objcopy
+# OBJCOPY := loongarch64-linux-gnu-objcopy
 OBJDUMP := loongarch64-unknown-linux-gnu-objdump
+# OBJDUMP := loongarch64-linux-gnu-objdump
 READELF := loongarch64-unknown-linux-gnu-readelf
+# READELF := loongarch64-linux-gnu-readelf
 
 ifndef LOG
 	LOG_OPTION := "log_off"
@@ -44,22 +43,34 @@ FAT32_IMG_NAME := $(FAT32_IMG_RV)
 ifeq ($(ARCH), loongarch64)
 	FAT32_IMG_NAME = $(FAT32_IMG_LA)
 endif
-U_FAT32 := ${U_FAT32_DIR}/$(FAT32_IMG_NAME)	
-FAT32_2K500_LN = $(shell readlink -f $(U_FAT32_DIR))/$(FAT32_IMG_LA)
 
-QEMU_2K500_DIR=../util/qemu-2k500/gz
-QEMU_2K500=$(QEMU_2K500_DIR)/runqemu2k500
+#ifeq ($(MODE), debug)
+#	LA_2K500_DISABLE_EH_FRAME := -D EH_ENABLED
+#endif
+ifeq ($(MODE), debug)
+	LA_2K1000_DISABLE_EH_FRAME := -D EH_ENABLED
+endif
+# FAT32_2K500_LN -> FAT32_2K1000_LN
+U_FAT32 := ${U_FAT32_DIR}/$(FAT32_IMG_NAME)	
+FAT32_2K1000_LN = $(shell readlink -f $(U_FAT32_DIR))/$(FAT32_IMG_LA)
+
+
+# QEMU_2K500_DIR=../util/qemu-2k500/gz
+# QEMU_2K500=$(QEMU_2K500_DIR)/runqemu2k500
+QEMU_2K1000_DIR=../util/qemu-2k1000/
+QEMU_2K1000=$(QEMU_2K1000_DIR)/runqemu
 IMG_DIR=../easy-fs-fuse
 U_IMG=$(IMG_DIR)/uImage
-
+#LA_2K500_SERIAL_PORT->LA_2K1000_SERIAL_PORT   LA_2K500_PORT_FREQ->LA_2K1000_PORT_FREQ
 LA_DEBUGGER_SERIAL_PORT = $$(python3 -m serial.tools.list_ports 1A86:7523 -q | head -n 1)
 LA_DEBUGGER_PORT_FREQ = $(LA_DEBUGGER_SERIAL_PORT) 115200
-LA_2K500_SERIAL_PORT = $$(python3 -m serial.tools.list_ports 067B:2303 -q | head -n 1)
-LA_2K500_PORT_FREQ = $(LA_2K500_SERIAL_PORT) 115200
+LA_2K1000_SERIAL_PORT = $$(python3 -m serial.tools.list_ports 067B:2303 -q | head -n 1)
+LA_2K1000_PORT_FREQ = $(LA_2K1000_SERIAL_PORT) 115200
 MINITERM_START_CMD=python3 -m serial.tools.miniterm --dtr 0 --rts 0 --filter direct 
 
-LA_ENTRY_POINT = 0x9000000000000000
-LA_LOAD_ADDR = 0x9000000000000000
+LA_ENTRY_POINT = 0x9000000090000000
+
+LA_LOAD_ADDR =   0x9000000090000000
 
 RUST_LA_TOOLCHAIN = $(shell rustup show |grep "\(la\|loongarch\)\(64\)\?" |cut -d' ' -f1|head -n 1)
 
@@ -106,25 +117,28 @@ endif
 #	@$(OBJDUMP) -SC $(KERNEL_ELF) > $(KERNEL_ELF).S
 
 fat32:
-ifneq ($(BOARD),2k500)
+ifneq ($(BOARD),2k1000)
 	./buildfs.sh "$(U_FAT32_DIR)/$(FAT32_IMG_NAME)" "laqemu" $(MODE)
 else
-	./buildfs.sh "$(U_FAT32_DIR)/$(FAT32_IMG_NAME)" 2k500 $(MODE)
+	./buildfs.sh "$(U_FAT32_DIR)/$(FAT32_IMG_NAME)" 2k1000 $(MODE)
 endif
 
 remake-qemu-flash-fat-img: fat32 qemu-flash-fat-img
 
 qemu-flash-fat-img:
-ifeq ($(BOARD), 2k500)
-	@./la_fat $(MINITERM_START_CMD) $(LA_2K500_PORT_FREQ) 
+ifeq ($(BOARD), 2k1000)
+	@./la_fat $(MINITERM_START_CMD) $(LA_2K1000_PORT_FREQ) 
 else ifeq ($(BOARD), laqemu)
-	@./la_fat $(QEMU_2K500)
+	@./la_fat $(QEMU_2K1000)
 endif
 
 
+#src/linker.ld: .FORCE
+#	-@rm src/linker.ld
+#	cpp -P $(LA_2K500_DISABLE_EH_FRAME) -D $(LDBOARD) src/linker.in.ld $@
 src/linker.ld: .FORCE
 	-@rm src/linker.ld
-	cpp -P $(LA_2K500_DISABLE_EH_FRAME) -D $(LDBOARD) src/linker.in.ld $@
+	cpp -P $(LA_2K1000_DISABLE_EH_FRAME) -D $(LDBOARD) src/linker.in.ld $@
 
 fsimg-format:
 	sudo mkfs.vfat -F 32 ${U_FAT32}
@@ -152,23 +166,24 @@ run-inner: build do-run
 runsimple: do-run
 do-run:
 #	-ln -s $(FAT32_2K500_LN) $(QEMU_2K500_DIR)/$(FAT32_IMG_LA)
-#	echo $(FAT32_2K500_LN)
+#	echo $(FAT32_2K500_LN)`  
 #First, link the image into the directory.
+# FAT32_2K1000_LN -> FAT32_2K1000_LN
 ifeq ($(BOARD), laqemu)
-	-ln -s $(FAT32_2K500_LN) $(QEMU_2K500_DIR)/$(FAT32_IMG_LA)
+	-ln -s $(FAT32_2K1000_LN) $(QEMU_2K1000_DIR)/$(FAT32_IMG_LA)
 	@echo "========WARNING!========"
-	@echo "The next command is expecting a modified runqemu2k500 script where any potential and implicit \"current working directory\" has been replaced by a generated script storage path."
-	@./run_script $(QEMU_2K500)
-else ifeq ($(BOARD), 2k500)
-	@./run_script $(MINITERM_START_CMD) $(LA_2K500_PORT_FREQ)
+	@echo "The next command is expecting a modified runqemu2k1000 script where any potential and implicit \"current working directory\" has been replaced by a generated script storage path."
+	@./run_script $(QEMU_2K1000)
+else ifeq ($(BOARD), 2k1000)
+	@./run_script $(MINITERM_START_CMD) $(LA_2K1000_PORT_FREQ)
 endif
 
 
 new-gdb: build gdb
 gdb:
 ifeq ($(BOARD),laqemu)
-	./run_script $(QEMU_2K500) "-S"
-else ifeq ($(BOARD), 2k500)
+	./run_script $(QEMU_2K1000) "-S"
+else ifeq ($(BOARD), 2k1000)
 	@./la_gdbserver minicom -D $(LA_DEBUGGER_PORT_FREQ)
 endif
 
