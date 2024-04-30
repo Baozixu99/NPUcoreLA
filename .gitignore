@@ -40,3 +40,8 @@ Doc/**/*.org
 Doc/**/*.tex
 Doc/**/*.jpg
 Doc/**/*.png
+
+#util
+util/qemu-2k500/
+util/qemu-2k1000/nand.dat
+util/qemu-2k1000/qemu.log
