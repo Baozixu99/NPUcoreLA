@@ -1,7 +1,7 @@
 # cargo config
 os/Cargo.lock
 user/Cargo.lock
-os/src/linker.ld
+# os/src/linker.ld
 os/new_cmd
 
 # IDE config
