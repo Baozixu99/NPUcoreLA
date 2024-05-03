@@ -149,7 +149,6 @@ update-usr:user fat32
 change:
 	
 	@echo "change pass!!!"
-	cd ../user && mv cargo .cargo
 kernel:change
 	@echo Platform: $(BOARD)
 	$(error This is a debug error message.)
