@@ -147,8 +147,9 @@ fsimg-format:
 update-usr:user fat32
 
 change:
-	
-	@echo "change pass!!!"
+	@echo "change start!!!"
+	@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
+	@echo "change end!!!"
 kernel:change
 	@echo Platform: $(BOARD)
 	$(error This is a debug error message.)
@@ -157,7 +158,6 @@ kernel:change
     else
 		@cargo build --no-default-features --release --features "board_$(BOARD) $(LOG_OPTION)"  --target $(TARGET)
     endif
-
 
 clean:
 	@cargo clean
