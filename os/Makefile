@@ -115,7 +115,7 @@ uimage: $(KERNEL_BIN)
 	-@rm $(U_IMG)
 	@cp -f $$(pwd)/target/$(TARGET)/$(MODE)/os.ui $(U_IMG)
 #endif
-	# -@rm src/linker.ld
+# -@rm src/linker.ld
 #	@$(OBJDUMP) -SC $(KERNEL_ELF) > $(KERNEL_ELF).S
 
 fat32:
@@ -135,9 +135,7 @@ else
 endif
 
 
-#src/linker.ld: .FORCE
-#	-@rm src/linker.ld
-#	cpp -P $(LA_2K500_DISABLE_EH_FRAME) -D $(LDBOARD) src/linker.in.ld $@
+
 src/linker.ld: .FORCE
 	-@rm src/linker.ld
 	cpp -P $(LA_2K1000_DISABLE_EH_FRAME) -D $(LDBOARD) src/linker.in.ld $@
@@ -159,7 +157,7 @@ kernel:change
 
 clean:
 	@cargo clean
-	# -@rm src/linker.ld
+# -@rm src/linker.ld
 	-@rm ../easy-fs-fuse/uImage
 	-@rm ../easy-fs-fuse/rootfs-ubifs-ze.img
 	-@cd ../user && make clean
