@@ -147,16 +147,18 @@ fsimg-format:
 update-usr:user fat32
 
 change:
-	mv cargo .cargo
+	@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
+	@echo "change pass!!!"
 	cd ../user && mv cargo .cargo
 kernel:change
 	@echo Platform: $(BOARD)
+	$(error This is a debug error message.)
     ifeq ($(MODE), debug)
 		@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
     else
-		@echo Platform: $(BOARD)
+		@cargo build --no-default-features --release --features "board_$(BOARD) $(LOG_OPTION)"  --target $(TARGET)
     endif
-	$(error This is a debug error message.)
+
 
 clean:
 	@cargo clean
