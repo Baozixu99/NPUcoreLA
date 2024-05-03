@@ -75,16 +75,18 @@ all: build mv
 # rust-user build mv
 mv:
 	mv $(KERNEL_BIN) ../kernel.bin
-#build: env $(KERNEL_BIN)
-build:  $(KERNEL_BIN)
-# env: # switch-toolchain
-# 	-(rustup target list | grep "$(TARGET) (installed)") || rustup target add $(TARGET)
-# 	if [ "$(dpkg --list|grep "ii[[:space:]]*expect")"="" ];then true;else sudo apt install expect;fi
-# ifneq ($(ARCH), loongarch64)
-# #	-cargo install cargo-binutils --vers ~0.2
-# endif
-# #	-rustup component add rust-src
-# #	-rustup component add llvm-tools-preview
+build: env $(KERNEL_BIN)
+setup:
+    export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
+    export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
+env: setup # switch-toolchain
+	-(rustup target list | grep "$(TARGET) (installed)") || rustup target add $(TARGET)
+	if [ "$(dpkg --list|grep "ii[[:space:]]*expect")"="" ];then true;else sudo apt install expect;fi
+ifneq ($(ARCH), loongarch64)
+#	-cargo install cargo-binutils --vers ~0.2
+endif
+#	-rustup component add rust-src
+#	-rustup component add llvm-tools-preview
 
 # build all user programs
 user: c-user rust-user
