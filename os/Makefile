@@ -152,10 +152,11 @@ change:
 kernel:change
 	@echo Platform: $(BOARD)
     ifeq ($(MODE), debug)
-		@echo Platform: $(BOARD)
+		@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
     else
 		@echo Platform: $(BOARD)
     endif
+	$(error This is a debug error message.)
 
 clean:
 	@cargo clean
