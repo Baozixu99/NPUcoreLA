@@ -147,7 +147,7 @@ fsimg-format:
 update-usr:user fat32
 
 change:
-	@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
+	
 	@echo "change pass!!!"
 	cd ../user && mv cargo .cargo
 kernel:change
