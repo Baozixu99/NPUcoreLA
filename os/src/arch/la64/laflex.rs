@@ -10,8 +10,7 @@ use _core::convert::TryFrom;
 use alloc::{sync::Arc, vec::Vec};
 use bitflags::*;
 use log::trace;
-//static mut DIRTY: [bool; MEMORY_SIZE / PAGE_SIZE] = [false; MEMORY_SIZE / PAGE_SIZE];
-static mut DIRTY: [bool; (MEMORY_SIZE / PAGE_SIZE) * 10] = [false; (MEMORY_SIZE / PAGE_SIZE) * 10];
+static mut DIRTY: [bool; MEMORY_SIZE*10 / PAGE_SIZE] = [false; MEMORY_SIZE*10 / PAGE_SIZE];
 use super::register::MemoryAccessType;
 
 bitflags! {

@@ -205,6 +205,7 @@ pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
             args[2] as *const [TimeSpec; 2],
             args[3] as u32,
         ),
+        SYSCALL_SHUTDOWN => sys_shutdown(),
         SYSCALL_EXIT => sys_exit(args[0] as u32),
         SYSCALL_EXIT_GROUP => sys_exit_group(args[0] as u32),
         SYSCALL_CLOCK_GETTIME => sys_clock_gettime(args[0], args[1] as *mut TimeSpec),

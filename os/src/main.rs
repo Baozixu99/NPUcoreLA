@@ -9,8 +9,8 @@
 #![feature(asm_experimental_arch)]
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
-//#![feature(btree_drain_filter)]
-//#![feature(drain_filter)]
+// #![feature(btree_drain_filter)]
+// #![feature(drain_filter)]
 #![feature(int_roundings)]
 #![feature(string_remove_matches)]
 #![feature(lang_items)]
@@ -37,9 +37,13 @@ mod task;
 mod timer;
 
 use crate::arch::{bootstrap_init, machine_init};
-
+// #[cfg(feature = "board_2k1000")]
+use crate::config::DISK_IMAGE_BASE;
 #[cfg(feature = "la64")]
 core::arch::global_asm!(include_str!("arch/la64/entry.asm"));
+// #[cfg(feature = "board_2k1000")]
+core::arch::global_asm!(include_str!("load_img.S"));
+// core::arch::global_asm!(include_str!("preload_app.S"));
 
 fn mem_clear() {
     extern "C" {
@@ -61,10 +65,33 @@ fn mem_clear() {
     }
 }
 
+// #[cfg(feature = "board_2k1000")]
+fn move_to_high_address() {
+    extern "C" {
+        fn simg();
+        fn eimg();
+    }
+    unsafe {
+        let img = core::slice::from_raw_parts(
+            simg as usize as *mut u8,
+            eimg as usize - simg as usize
+        );
+        // 从DISK_IMAGE_BASE到MEMORY_END
+        let mem_disk = core::slice::from_raw_parts_mut(
+            DISK_IMAGE_BASE as *mut u8,
+            0x800_0000
+        );
+        mem_disk.fill(0);
+        mem_disk[..img.len()].copy_from_slice(img);
+    }
+}
+
 #[no_mangle]
 pub fn rust_main() -> ! {
     bootstrap_init();
     mem_clear();
+    // #[cfg(feature = "board_2k1000")]
+    move_to_high_address();
     console::log_init();
     println!("[kernel] Console initialized.");
     mm::init();
@@ -76,6 +103,7 @@ pub fn rust_main() -> ! {
 
     //machine independent initialization
     fs::directory_tree::init_fs();
+    // fs::flush_preload();
     task::add_initproc();
 
     // note that in run_tasks(), there is yet *another* pre_start_init(),

@@ -1,6 +1,7 @@
 pub const SYSCALL_GETCWD: usize = 17;
+pub const SYSCALL_DUP3: usize = 20;
 pub const SYSCALL_DUP: usize = 23;
-pub const SYSCALL_DUP3: usize = 24;
+pub const SYSCALL_DUP2: usize = 24;
 pub const SYSCALL_FCNTL: usize = 25;
 pub const SYSCALL_IOCTL: usize = 29;
 pub const SYSCALL_MKDIRAT: usize = 34;
@@ -88,6 +89,7 @@ pub const SYSCALL_PRLIMIT: usize = 261;
 pub const SYSCALL_RENAMEAT2: usize = 276;
 pub const SYSCALL_MEMBARRIER: usize = 283;
 pub const SYSCALL_FACCESSAT2: usize = 439;
+pub const SYSCALL_STATX: usize = 291;
 // Not standard POSIX sys_call
 pub const SYSCALL_LS: usize = 500;
 pub const SYSCALL_SHUTDOWN: usize = 501;

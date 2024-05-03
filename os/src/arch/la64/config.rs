@@ -58,7 +58,7 @@ pub const SUC_DMW_VESG: usize = 8;
 pub const MEMORY_HIGH_BASE: usize = HIGH_BASE_ZERO;
 pub const MEMORY_HIGH_BASE_VPN: usize = MEMORY_HIGH_BASE >> PAGE_SIZE_BITS;
 pub const USER_STACK_BASE: usize = TASK_SIZE - PAGE_SIZE | LA_START;
-pub const MEMORY_START: usize = MEMORY_HIGH_BASE;
+pub const MEMORY_START: usize = 0x0000_0000_9000_0000;
 pub const REAL_MEMORY_END: usize = REAL_MEMORY_SIZE + MEMORY_START;
 pub const MEMORY_END: usize = MEMORY_SIZE + MEMORY_START;
 

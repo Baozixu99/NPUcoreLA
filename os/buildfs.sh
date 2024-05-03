@@ -5,7 +5,7 @@ BLK_SZ="512"
 TARGET=riscv64gc-unknown-none-elf
 MODE="release"
 if [ $# -ge 2 ]; then
-    if [ "$2"="2k500" -o "$2"="laqemu" ]
+    if [ "$2"="2k1000" -o "$2"="laqemu" ]
     then
         TARGET=loongarch64-unknown-linux-gnu
         BLK_SZ="2048"
@@ -24,7 +24,7 @@ echo
 echo Current arch: ${ARCH}
 echo
 touch ${U_FAT32}
-"$SUDO" dd if=/dev/zero of=${U_FAT32} bs=1M count=128
+"$SUDO" dd if=/dev/zero of=${U_FAT32} bs=1M count=48
 echo Making fat32 imgage with BLK_SZ=${BLK_SZ}
 "$SUDO" mkfs.vfat -F 32 ${U_FAT32} -S ${BLK_SZ}
 "$SUDO" fdisk -l ${U_FAT32}
@@ -78,6 +78,7 @@ fi
 try_copy ../user/user_C_program/user/build/${ARCH}  ${U_FAT32_DIR}/fs/syscall
 try_copy ../user/busybox_lua_testsuites/${ARCH} ${U_FAT32_DIR}/fs/
 try_copy ../user/disk/${ARCH} ${U_FAT32_DIR}/fs/
+try_copy ../user/${ARCH}  ${U_FAT32_DIR}/fs/
 
 "$SUDO" umount ${U_FAT32_DIR}/fs
 echo "DONE"

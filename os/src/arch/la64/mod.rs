@@ -1,12 +1,10 @@
-#[cfg(feature = "board_2k1000")]
-#[path = "board/2k1000.rs"]
-pub mod board;
-#[cfg(feature = "board_laqemu")]
 #[path = "board/2k1000.rs"]
 pub mod board;
 pub mod config;
 pub mod laflex;
-mod ls_nand;
+#[macro_use]
+mod mem_reg_macro;
+mod acpi;
 mod sbi;
 pub mod switch;
 pub mod time;
@@ -67,9 +65,10 @@ pub fn pre_start_init() {
     EEntry::empty().set_exception_entry(strampoline as usize);
 }
 pub fn bootstrap_init() {
-    /* if CPUId::read().get_core_id() != 0 {
-     *     loop {}
-     * } */
+    #[cfg(feature = "board_2k1000")]
+    if CPUId::read().get_core_id() != 0 {
+         loop {}
+    };
     ECfg::empty()
         .set_line_based_interrupt_vector(LineBasedInterrupt::TIMER)
         .write();

@@ -1,5 +1,5 @@
 #[macro_use]
-mod macros;
+mod csr_macros;
 mod base;
 mod mmu;
 mod ras;

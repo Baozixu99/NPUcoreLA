@@ -68,7 +68,7 @@ const SYSCALL_MPROTECT: usize = 226;
 const SYSCALL_WAIT4: usize = 260;
 const SYSCALL_PRLIMIT: usize = 261;
 const SYSCALL_RENAMEAT2: usize = 276;
-
+const SYSCALL_STATX: usize = 291;
 // Not standard POSIX sys_call
 const SYSCALL_LS: usize = 500;
 const SYSCALL_SHUTDOWN: usize = 501;
@@ -167,4 +167,7 @@ pub fn sys_exec(path: &str, args: &[*const u8], envp: &[*const u8]) -> isize {
 
 pub fn sys_waitpid(pid: isize, exit_code: *mut i32) -> isize {
     syscall(SYSCALL_WAIT4, [pid as usize, exit_code as usize, 0])
+}
+pub fn sys_shutdown() -> isize {
+    syscall(SYSCALL_SHUTDOWN, [0, 0, 0])
 }

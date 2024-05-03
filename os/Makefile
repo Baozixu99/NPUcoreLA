@@ -1,6 +1,5 @@
 # Building
 TARGET := loongarch64-unknown-linux-gnu
-# TARGET := loongarch64-linux-gnu
 MODE := debug
 CORE_NUM := 1
 
@@ -11,7 +10,7 @@ KERNEL_UIMG = $(KERNEL_ELF).ui
 ARCH=${shell echo ${TARGET}|cut -d- -f1 |grep -o "^[a-zA-Z]\+[[:digit:]]*"}
 # BOARD
 BOARD ?= laqemu
-#LDBOARD = la2k500
+
 LDBOARD = la2k1000
 
 SDDEV := $(shell lsblk -do NAME | grep sd | tail -1)
@@ -25,12 +24,9 @@ ifeq ($(BOARD), 2K1000)
 endif
 
 # Binutils
-OBJCOPY := loongarch64-unknown-linux-gnu-objcopy
-# OBJCOPY := loongarch64-linux-gnu-objcopy
-OBJDUMP := loongarch64-unknown-linux-gnu-objdump
-# OBJDUMP := loongarch64-linux-gnu-objdump
-READELF := loongarch64-unknown-linux-gnu-readelf
-# READELF := loongarch64-linux-gnu-readelf
+OBJCOPY := loongarch64-linux-gnu-objcopy
+OBJDUMP := loongarch64-linux-gnu-objdump
+READELF := loongarch64-linux-gnu-readelf
 
 ifndef LOG
 	LOG_OPTION := "log_off"
@@ -57,8 +53,8 @@ FAT32_2K1000_LN = $(shell readlink -f $(U_FAT32_DIR))/$(FAT32_IMG_LA)
 
 # QEMU_2K500_DIR=../util/qemu-2k500/gz
 # QEMU_2K500=$(QEMU_2K500_DIR)/runqemu2k500
-QEMU_2K1000_DIR=../util/qemu-2k1000/
-QEMU_2K1000=$(QEMU_2K1000_DIR)/runqemu
+QEMU_2K1000_DIR=../util/qemu-2k1000/gz
+QEMU_2K1000=$(QEMU_2K1000_DIR)/runqemu2k1000
 IMG_DIR=../easy-fs-fuse
 U_IMG=$(IMG_DIR)/uImage
 #LA_2K500_SERIAL_PORT->LA_2K1000_SERIAL_PORT   LA_2K500_PORT_FREQ->LA_2K1000_PORT_FREQ
@@ -69,7 +65,6 @@ LA_2K1000_PORT_FREQ = $(LA_2K1000_SERIAL_PORT) 115200
 MINITERM_START_CMD=python3 -m serial.tools.miniterm --dtr 0 --rts 0 --filter direct 
 
 LA_ENTRY_POINT = 0x9000000090000000
-
 LA_LOAD_ADDR =   0x9000000090000000
 
 RUST_LA_TOOLCHAIN = $(shell rustup show |grep "\(la\|loongarch\)\(64\)\?" |cut -d' ' -f1|head -n 1)
@@ -108,16 +103,17 @@ $(KERNEL_BIN): kernel
 	@$(OBJCOPY) $(KERNEL_ELF) $@ --strip-all -O binary &
 	@$(OBJDUMP) $(KERNEL_ELF) -SC > target/$(TARGET)/$(MODE)/asm_all.txt 
 	@$(READELF) -ash $(KERNEL_ELF) > target/$(TARGET)/$(MODE)/sec.txt &
-ifeq ($(ARCH), loongarch64)
+#ifeq ($(ARCH), loongarch64)
+uimage: $(KERNEL_BIN)
 	../util/mkimage -A loongarch -O linux -T kernel -C none -a $(LA_LOAD_ADDR) -e $(LA_ENTRY_POINT) -n NPUcore+ -d $(KERNEL_BIN) $(KERNEL_UIMG)
 	-@rm $(U_IMG)
 	@cp -f $$(pwd)/target/$(TARGET)/$(MODE)/os.ui $(U_IMG)
-endif
-	-@rm src/linker.ld
+#endif
+	# -@rm src/linker.ld
 #	@$(OBJDUMP) -SC $(KERNEL_ELF) > $(KERNEL_ELF).S
 
 fat32:
-ifneq ($(BOARD),2k1000)
+ifneq ($(BOARD),laqemu)
 	./buildfs.sh "$(U_FAT32_DIR)/$(FAT32_IMG_NAME)" "laqemu" $(MODE)
 else
 	./buildfs.sh "$(U_FAT32_DIR)/$(FAT32_IMG_NAME)" 2k1000 $(MODE)
@@ -126,10 +122,10 @@ endif
 remake-qemu-flash-fat-img: fat32 qemu-flash-fat-img
 
 qemu-flash-fat-img:
-ifeq ($(BOARD), 2k1000)
-	@./la_fat $(MINITERM_START_CMD) $(LA_2K1000_PORT_FREQ) 
-else ifeq ($(BOARD), laqemu)
+ifeq ($(BOARD), laqemu)
 	@./la_fat $(QEMU_2K1000)
+else 
+	@./la_fat $(MINITERM_START_CMD) $(LA_2K1000_PORT_FREQ) 
 endif
 
 
@@ -154,14 +150,14 @@ kernel: src/linker.ld
 
 clean:
 	@cargo clean
-	-@rm src/linker.ld
+	# -@rm src/linker.ld
 	-@rm ../easy-fs-fuse/uImage
 	-@rm ../easy-fs-fuse/rootfs-ubifs-ze.img
 	-@cd ../user && make clean
 
-run: env run-inner 
+run: clean env update-usr run-inner 
 
-run-inner: build do-run
+run-inner: build uimage do-run
 
 runsimple: do-run
 do-run:
