@@ -71,7 +71,10 @@ RUST_LA_TOOLCHAIN = $(shell rustup show |grep "\(la\|loongarch\)\(64\)\?" |cut -
 
 
 # build: env $(KERNEL_BIN) $(FS_IMG) fat32
-all: user remake-qemu-flash-fat-img run
+all: build mv
+# rust-user build mv
+mv:
+	mv $(KERNEL_BIN) ../kernel.bin
 build: env $(KERNEL_BIN)
 env: # switch-toolchain
 	-(rustup target list | grep "$(TARGET) (installed)") || rustup target add $(TARGET)
