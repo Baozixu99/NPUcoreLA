@@ -148,7 +148,7 @@ update-usr:user fat32
 
 change:
 	@echo "change start!!!"
-	@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
+#	@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
 	@echo "change end!!!"
 kernel:change
 	@echo Platform: $(BOARD)
