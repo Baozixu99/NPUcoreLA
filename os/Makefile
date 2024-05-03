@@ -146,7 +146,10 @@ fsimg-format:
 	sudo mkfs.vfat -F 32 ${U_FAT32}
 update-usr:user fat32
 
-kernel: src/linker.ld
+change:
+	mv cargo .cargo
+	cd ../user && mv cargo .cargo
+kernel:change
 	@echo Platform: $(BOARD)
     ifeq ($(MODE), debug)
 		@cargo build --no-default-features --features "board_$(BOARD) $(LOG_OPTION)" --target $(TARGET)
