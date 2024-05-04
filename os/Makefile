@@ -145,8 +145,8 @@ fsimg-format:
 update-usr:user fat32
 
 change:
-#	mv cargo .cargo
-#	cd ../user && mv cargo .cargo
+	mv cargo .cargo
+	cd ../user && mv cargo .cargo
 kernel:change
 	@echo Platform: $(BOARD)
     ifeq ($(MODE), debug)
