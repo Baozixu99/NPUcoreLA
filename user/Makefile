@@ -1,4 +1,4 @@
-TARGET := riscv64gc-unknown-none-elf
+TARGET := loongarch64-unknown-linux-gnu
 TESTDIR := ./user_C_program/user
 MODE := debug
 
