@@ -8,6 +8,7 @@ Loong Arch GCC 13： https://github.com/LoongsonLab/oscomp-toolchains-for-oskern
 `qemu-download` 
 # 运行方式
 `make all`
+
 `make run`
 ## 其他
 `make clean`: 清理已经编译的项目（包括用户程序， 系统和FAT镜像）
