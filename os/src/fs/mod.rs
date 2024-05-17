@@ -354,9 +354,27 @@ impl FdTable {
         }
         Ok(())
     }
+     pub fn find_min(&mut self) -> Option<u8>{
+            let min_value = match self.recycled.iter().min(){
+                Some(&min_value) => {
+                    match self.recycled.iter().position(|&x| x == min_value) {
+                        Some(index) => {
+                            self.recycled.remove(index);
+                            Some(min_value)
+                        },
+                        None => None
+                    } 
+                },
+                None => None
+            };
+            min_value
+     }
+
     #[inline]
     pub fn insert(&mut self, file_descriptor: FileDescriptor) -> Result<usize, isize> {
-        let fd = match self.recycled.pop() {
+        //直接pop fd比较省事，但是初赛openat测例要求新的fd>旧的，所以改为用find_min查找最小的fd
+        // let fd = match self.recycled.pop() {
+        let fd = match self.find_min() {    
             Some(fd) => {
                 self.inner[fd as usize] = Some(file_descriptor);
                 fd as usize
