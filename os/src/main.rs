@@ -99,7 +99,7 @@ pub fn rust_main() -> ! {
     //mm::remap_test();
 
     machine_init();
-    println!("[kernel] Hello, world!");
+    println!("[kernel] Hello, Welcome to HPU!");
 
     //machine independent initialization
     fs::directory_tree::init_fs();
