@@ -12,9 +12,9 @@ gdb:
 
 qemu-download:
 	mkdir -p util/qemu-2k1000/tmp
-	cd util/qemu-2k1000/tmp && wget https://gitlab.educg.net/wangmingjian/os-contest-2024-image/-/raw/master/qemu-2k1000-static.20240126.tar.xz
-	cd util/qemu-2k1000/tmp && tar xavf qemu-2k1000-static.20240126.tar.xz
-	rm -rf util/qemu-2k1000/tmp/qemu-2k1000-static.20240126.tar.xz
+	cd util/qemu-2k1000/tmp && wget https://github.com/LoongsonLab/2k1000-materials/releases/download/qemu-static-20240401/qemu-static-20240401.tar.xz
+	cd util/qemu-2k1000/tmp && tar xavf qemu-static-20240401.tar.xz
+	rm -rf util/qemu-2k1000/tmp/qemu-static-20240401.tar.xz
 	rm -rf util/qemu-2k1000/tmp/qemu/2k1000
 	rm -rf util/qemu-2k1000/tmp/qemu/runqemu
 	rm -rf util/qemu-2k1000/tmp/qemu/README.md
