@@ -1,6 +1,7 @@
 pub const SYSCALL_GETCWD: usize = 17;
+pub const SYSCALL_DUP3: usize = 20;
 pub const SYSCALL_DUP: usize = 23;
-pub const SYSCALL_DUP3: usize = 24;
+pub const SYSCALL_DUP2: usize = 24;
 pub const SYSCALL_FCNTL: usize = 25;
 pub const SYSCALL_IOCTL: usize = 29;
 pub const SYSCALL_MKDIRAT: usize = 34;
@@ -96,4 +97,4 @@ pub const SYSCALL_CLEAR: usize = 502;
 pub const SYSCALL_OPEN: usize = 506; //where?
 pub const SYSCALL_GET_TIME: usize = 1690; //you mean get time of day by 169?
 pub const SYSCALL_MYCALL: usize = 6666; //97行
-const SYSCALL_PRINT_TCB: usize =1691;
+pub const SYSCALL_PRINT_TCB: usize =1691;

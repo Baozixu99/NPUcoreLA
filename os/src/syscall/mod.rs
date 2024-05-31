@@ -14,6 +14,7 @@ use socket::*;
 pub fn syscall_name(id: usize) -> &'static str {
     match id {
         SYSCALL_DUP => "dup",
+        SYSCALL_DUP2 => "dup2",
         SYSCALL_DUP3 => "dup3",
         SYSCALL_OPEN => "open",
         SYSCALL_GET_TIME => "get_time",
@@ -156,6 +157,7 @@ pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
     let ret = match syscall_id {
         SYSCALL_GETCWD => sys_getcwd(args[0], args[1]),
         SYSCALL_DUP => sys_dup(args[0]),
+        SYSCALL_DUP2 => sys_dup2(args[0], args[1]),
         SYSCALL_DUP3 => sys_dup3(args[0], args[1], args[2] as u32),
         SYSCALL_FCNTL => sys_fcntl(args[0], args[1] as u32, args[2]),
         SYSCALL_IOCTL => sys_ioctl(args[0], args[1] as u32, args[2]),

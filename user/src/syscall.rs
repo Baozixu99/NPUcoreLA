@@ -5,8 +5,9 @@ use core::arch::asm;
 use core::arch::global_asm;
 
 const SYSCALL_GETCWD: usize = 17;
+const SYSCALL_DUP3: usize = 20;
 const SYSCALL_DUP: usize = 23;
-const SYSCALL_DUP3: usize = 24;
+const SYSCALL_DUP2: usize = 24;
 const SYSCALL_FCNTL: usize = 25;
 const SYSCALL_IOCTL: usize = 29;
 const SYSCALL_MKDIRAT: usize = 34;

@@ -483,18 +483,33 @@ pub fn sys_getdents64(fd: usize, dirp: *mut u8, count: usize) -> isize {
 pub fn sys_dup(oldfd: usize) -> isize {
     let task = current_task().unwrap();
     let mut fd_table = task.files.lock();
-    let old_file_descriptor = match fd_table.get_ref(oldfd) {
+    let old_file_descriptor = match fd_table.get_ref(oldfd) {//获取文件描述符的不可变引用，只读
         Ok(file_descriptor) => file_descriptor.clone(),
         Err(errno) => return errno,
     };
     let newfd = match fd_table.insert(old_file_descriptor) {
-        Ok(fd) => fd,
+        Ok(new_fd) => new_fd,
         Err(errno) => return errno,
     };
     info!("[sys_dup] oldfd: {}, newfd: {}", oldfd, newfd);
     newfd as isize
 }
-
+pub fn sys_dup2(oldfd: usize, newfd: usize) -> isize {
+    info!("[sys_dup3] oldfd: {}, newfd: {}",oldfd,newfd);
+    if oldfd == newfd {
+        return newfd as isize;
+    }
+    let task = current_task().unwrap();
+    let mut fd_table = task.files.lock();
+    let mut file_descriptor = match fd_table.get_ref(oldfd) {
+        Ok(file_descriptor) => file_descriptor.clone(),
+        Err(errno) => return errno,
+    };
+    match fd_table.insert_at(file_descriptor, newfd) {
+        Ok(fd) => fd as isize,
+        Err(errno) => errno,
+    }
+}
 pub fn sys_dup3(oldfd: usize, newfd: usize, flags: u32) -> isize {
     info!(
         "[sys_dup3] oldfd: {}, newfd: {}, flags: {:?}",

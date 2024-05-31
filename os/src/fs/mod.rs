@@ -354,7 +354,7 @@ impl FdTable {
         self.hard_limit = limit;
     }
     #[inline]
-    pub fn get_ref(&self, fd: usize) -> Result<&FileDescriptor, isize> {
+    pub fn get_ref(&self, fd: usize) -> Result<&FileDescriptor, isize> { //获取文件描述符的不可变引用，只读
         if fd >= self.inner.len() {
             return Err(EBADF);
         }
@@ -364,7 +364,7 @@ impl FdTable {
         }
     }
     #[inline]
-    pub fn get_refmut(&mut self, fd: usize) -> Result<&mut FileDescriptor, isize> {
+    pub fn get_refmut(&mut self, fd: usize) -> Result<&mut FileDescriptor, isize> {//获取文件描述符的可变引用，可读写
         if fd >= self.inner.len() {
             return Err(EBADF);
         }
@@ -449,10 +449,10 @@ impl FdTable {
     ) -> Result<usize, isize> {
         let current = self.inner.len();
         if pos < current {
-            if self.inner[pos].is_none() {
-                self.recycled.retain(|&fd| fd as usize != pos);
+            if self.inner[pos].is_none() {  //如果不在当前文描述符表中
+                self.recycled.retain(|&fd| fd as usize != pos);//retain方法遍历文件描述符fd），并保留fd!=pos的元素，删除fd=pos的元素，即确保即将进行分配的新文件描述符不会出现在回收队列中
             }
-            self.inner[pos] = Some(file_descriptor);
+            self.inner[pos] = Some(file_descriptor);  //在当前文件描述符表中（表示已经打开的文件），直接进行替换
             Ok(pos)
         } else {
             if pos >= self.soft_limit {

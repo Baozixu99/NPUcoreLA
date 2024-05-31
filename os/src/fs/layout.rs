@@ -4,11 +4,11 @@ use crate::{arch::BLOCK_SZ, timer::TimeSpec};
 
 bitflags! {
     pub struct OpenFlags: u32 {
-        const O_RDONLY      =   0o0;
-        const O_WRONLY      =   0o1;
-        const O_RDWR        =   0o2;
+        const O_RDONLY      =   0o0;    //只读
+        const O_WRONLY      =   0o1;    //只写
+        const O_RDWR        =   0o2;    //读写
 
-        const O_CREAT       =   0o100;
+        const O_CREAT       =   0o100;  //创建
         const O_EXCL        =   0o200;
         const O_NOCTTY      =   0o400;
         const O_TRUNC       =   0o1000;

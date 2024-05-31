@@ -28,41 +28,41 @@ pub struct FsStatus {
 
 pub struct TaskControlBlock {
     // immutable
-    pub pid: PidHandle,
-    pub tid: usize,
-    pub tgid: usize,
-    pub kstack: KernelStackImpl,
-    pub ustack_base: usize,
-    pub exit_signal: Signals,
-    // mutable
+    pub pid: PidHandle,         //进程号
+    pub tid: usize,             //线程号
+    pub tgid: usize,            //线程组号
+    pub kstack: KernelStackImpl,//内核栈
+    pub ustack_base: usize,     //用户栈
+    pub exit_signal: Signals,   //退出信号
+    // mutable  可变部分
     inner: Mutex<TaskControlBlockInner>,
-    // shareable and mutable
-    pub exe: Arc<Mutex<FileDescriptor>>,
-    pub tid_allocator: Arc<Mutex<RecycleAllocator>>,
-    pub files: Arc<Mutex<FdTable>>,
-    pub fs: Arc<Mutex<FsStatus>>,
-    pub vm: Arc<Mutex<MemorySet<PageTableImpl>>>,
-    pub sighand: Arc<Mutex<Vec<Option<Box<SigAction>>>>>,
-    pub futex: Arc<Mutex<Futex>>,
+    // shareable and mutable  共享可变部分
+    pub exe: Arc<Mutex<FileDescriptor>>,            //可执行文件描述符
+    pub tid_allocator: Arc<Mutex<RecycleAllocator>>,// 线程 ID 分配器
+    pub files: Arc<Mutex<FdTable>>,                 // 文件描述符表
+    pub fs: Arc<Mutex<FsStatus>>,                   // 文件系统状态，暂时觉着这个FsStatus有点多余，觉着可以直接换成FileDescriptor
+    pub vm: Arc<Mutex<MemorySet<PageTableImpl>>>,   // 虚拟内存映射
+    pub sighand: Arc<Mutex<Vec<Option<Box<SigAction>>>>>,// 信号处理器
+    pub futex: Arc<Mutex<Futex>>,                   // 用于 futex 系统调用的同步原语
 }
 
 pub struct TaskControlBlockInner {
-    pub sigmask: Signals,
-    pub sigpending: Signals,
-    pub trap_cx_ppn: PhysPageNum,
-    pub task_cx: TaskContext,
-    pub task_status: TaskStatus,
-    pub parent: Option<Weak<TaskControlBlock>>,
-    pub children: Vec<Arc<TaskControlBlock>>,
-    pub exit_code: u32,
-    pub clear_child_tid: usize,
-    pub robust_list: RobustList,
-    pub heap_bottom: usize,
-    pub heap_pt: usize,
-    pub pgid: usize,
-    pub rusage: Rusage,
-    pub clock: ProcClock,
-    pub timer: [ITimerVal; 3],
+    pub sigmask: Signals,                       //信号屏蔽集
+    pub sigpending: Signals,                    //阻塞信号队列
+    pub trap_cx_ppn: PhysPageNum,               //将存放trap上下文信息的物理页号拿出来
+    pub task_cx: TaskContext,                   //进程的上下文 
+    pub task_status: TaskStatus,                //进程状态
+    pub parent: Option<Weak<TaskControlBlock>>, //父进程
+    pub children: Vec<Arc<TaskControlBlock>>,   //子进程
+    pub exit_code: u32,                         //退出码
+    pub clear_child_tid: usize,                 //需要清洗的子进程的线程号
+    pub robust_list: RobustList,                //robust互斥锁列表
+    pub heap_bottom: usize,                     //堆底指针
+    pub heap_pt: usize,                         //堆顶指针
+    pub pgid: usize,                            //进程组号
+    pub rusage: Rusage,                         //进程的资源使用情况
+    pub clock: ProcClock,                       //计时器
+    pub timer: [ITimerVal; 3],                  //定时器
 }
 
 #[derive(Clone, Copy, Debug)]
