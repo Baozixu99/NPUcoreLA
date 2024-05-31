@@ -75,6 +75,8 @@ const SYSCALL_SHUTDOWN: usize = 501;
 const SYSCALL_CLEAR: usize = 502;
 const SYSCALL_OPEN: usize = 506; //where?
 const SYSCALL_GET_TIME: usize = 1690; //you mean get time of day by 169?
+const SYSCALL_PRINT_TCB: usize =1691;
+const SYSCALL_MYCALL: usize = 6666;   //76行
 
 #[cfg(target_arch = "loongarch64")]
 global_asm!(include_str!("syscall.S"));
@@ -170,4 +172,17 @@ pub fn sys_waitpid(pid: isize, exit_code: *mut i32) -> isize {
 }
 pub fn sys_shutdown() -> isize {
     syscall(SYSCALL_SHUTDOWN, [0, 0, 0])
+}
+
+pub fn sys_mycall() -> isize {		 //153行
+    syscall(SYSCALL_MYCALL,[0,0,0])
+}
+
+pub fn sys_printtcb(message: *mut usize) -> isize {
+    syscall(SYSCALL_PRINT_TCB, [message as usize, 0, 0])
+}
+
+//syscall.rs 添加代码
+pub fn sys_getrusage(who: isize, rusage:*mut usize) -> isize {
+    syscall(SYSCALL_GETRUSAGE, [who as usize, rusage as usize, 0])
 }

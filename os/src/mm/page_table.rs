@@ -62,6 +62,7 @@ pub trait PageTable {
     fn readable(&self, vpn: VirtPageNum) -> Option<bool>;
     fn writable(&self, vpn: VirtPageNum) -> Option<bool>;
     fn executable(&self, vpn: VirtPageNum) -> Option<bool>;
+    fn print_page_table(&self);
 }
 
 /// if `existing_vec == None`, a empty `Vec` will be created.

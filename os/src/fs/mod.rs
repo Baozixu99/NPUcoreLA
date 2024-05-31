@@ -237,6 +237,54 @@ impl FileDescriptor {
             .unwrap();
         unsafe { core::slice::from_raw_parts_mut(addr as *mut u8, self.get_size()) }
     }
+    pub fn linkat(
+        old_fd: &Self,
+        old_path: &str,
+        new_fd: &Self,
+        new_path: &str,
+    ) -> Result<(), isize> {
+        // 检查旧路径是否为文件且不以'/'开头
+        if old_fd.file.is_file() && !old_path.starts_with('/') {
+            return Err(ENOTDIR);
+        }
+        // 检查新路径是否为文件且不以'/'开头
+        if new_fd.file.is_file() && !new_path.starts_with('/') {
+            return Err(ENOTDIR);
+        }
+        
+        // 获取旧路径的目录树节点
+        let old_inode = old_fd.file.get_dirtree_node();
+        let old_inode = match old_inode {
+            Some(inode) => inode,
+            None => return Err(ENOENT),
+        };
+        
+        // 获取新路径的目录树节点
+        let new_inode = new_fd.file.get_dirtree_node();
+        let new_inode = match new_inode {
+            Some(inode) => inode,
+            None => return Err(ENOENT),
+        };
+        
+        // 构建旧路径的绝对路径
+        let mut old_abs_path = [old_inode.get_cwd(), old_path.to_string()].join("/");
+        if old_path.starts_with('/') {
+            old_abs_path = old_path.to_string();
+        } else {
+            old_abs_path = [old_inode.get_cwd(), old_path.to_string()].join("/");
+        }
+        
+        // 构建新路径的绝对路径
+        let mut new_abs_path = [new_inode.get_cwd(), new_path.to_string()].join("/");
+        if new_path.starts_with('/') {
+            new_abs_path = new_path.to_string();
+        } else {
+            new_abs_path = [new_inode.get_cwd(), new_path.to_string()].join("/");
+        }
+    
+        // 调用底层方法执行链接操作
+        DirectoryTreeNode::linkat(&old_abs_path, &new_abs_path)
+    }
 }
 
 #[derive(Clone)]

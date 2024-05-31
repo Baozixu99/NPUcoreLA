@@ -299,6 +299,7 @@ impl PageTable for LAFlexPageTable {
     /// Create an empty page table from `satp`
     /// # Argument
     /// * `satp` Supervisor Address Translation & Protection reg. that points to the physical page containing the root page.
+    //根据给定的 satp 寄存器指向的物理页面来创建一个空的页表结构，以便进行后续的页表操作和管理。
     fn from_token(satp: usize) -> Self {
         Self {
             root_ppn: LAPTRoot::from(satp),
@@ -493,4 +494,42 @@ impl PageTable for LAFlexPageTable {
     fn unmap_identical(&mut self, vpn: VirtPageNum) {
         self.unmap(vpn)
     }
+         //打印内核页表函数    
+    fn print_page_table(&self){
+            let mut ppn = self.get_root_ppn();  //root_ppn是一个页表的唯一标识
+            let mut pa:PhysAddr = ppn.into();
+            println!("page table:{:#x}",pa.0);
+            let mut number_zero= 0;   //一级页表项编号
+            let mut number_one = 0;    //二级页表项编号
+            let mut number_two = 0;    //三级页表项编号
+            for pte_zero in ppn.get_pte_array::<LAFlexPageTableEntry>(){   //遍历一级页表项数组,get_pte_array可获取页表项数组
+                if !pte_zero.is_valid(){
+                    number_zero += 1;
+                    continue;                                            //使用continue会导致打印过长
+                }
+                ppn = pte_zero.ppn();   //修改为第一个有效的一级页表项的物理页号，便于访问二级页表         
+                let mut pa_zero:PhysAddr = ppn.into();
+                println!("..{}: pte 0x{:016x} pa 0x{:016x}",number_zero,pte_zero.bits,pa_zero.0);  //打印一级页表
+                number_zero += 1;
+                for pte_one in ppn.get_pte_array::<LAFlexPageTableEntry>(){   //遍历二级页表项数组
+                    if !pte_one.is_valid(){
+                        number_one += 1;
+                       continue;
+                    }
+                    ppn = pte_one.ppn();
+                    let mut pa_one:PhysAddr = ppn.into();
+                    println!(".. ..{}: pte 0x{:016x} pa 0x{:016x}",number_one,pte_one.bits,pa_one.0);
+                    number_one += 1;
+                    for pte_two in ppn.get_pte_array::<LAFlexPageTableEntry>(){//遍历三级页表项数组
+                        if !pte_two.is_valid(){
+                            number_two += 1;
+                            continue;
+                        }
+                        ppn = pte_two.ppn();
+                        let mut pa_two:PhysAddr = ppn.into();
+                        println!(".. .. ..{}: 0x{:016x} pa 0x{:016x}",number_two,pte_two.bits,pa_two.0);
+                        number_two += 1;
+                    }}}
+            println!("printf page table compete!!!");
+        }
 }

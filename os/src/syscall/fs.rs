@@ -581,8 +581,8 @@ bitflags! {
 }
 
 pub fn sys_fstatat(dirfd: usize, path: *const u8, buf: *mut u8, flags: u32) -> isize {
-    let token = current_user_token();
-    let path = match translated_str(token, path) {
+    let token = current_user_token();//获取物理页帧
+    let path = match translated_str(token, path) { //将用户空间的字符串路径转换成内核空间的字符串路径
         Ok(path) => path,
         Err(errno) => return errno,
     };
@@ -604,15 +604,15 @@ pub fn sys_fstatat(dirfd: usize, path: *const u8, buf: *mut u8, flags: u32) -> i
         AT_FDCWD => task.fs.lock().working_inode.as_ref().clone(),
         fd => {
             let fd_table = task.files.lock();
-            match fd_table.get_ref(fd) {
+            match fd_table.get_ref(fd) {         //获取当前进程的文件描述符
                 Ok(file_descriptor) => file_descriptor.clone(),
                 Err(errno) => return errno,
             }
         }
     };
 
-    match file_descriptor.open(&path, OpenFlags::O_RDONLY, false) {
-        Ok(file_descriptor) => {
+    match file_descriptor.open(&path, OpenFlags::O_RDONLY, false) {//获取打开文件的新的文件描述符
+        Ok(file_descriptor) => {//调用copy_to_user将文件信息内容拷贝到buf中
             if copy_to_user(token, &file_descriptor.get_stat(), buf as *mut Stat).is_err() {
                 log::error!("[sys_fstatat] Failed to copy to {:?}", buf);
                 return EFAULT;
@@ -729,46 +729,40 @@ pub fn sys_chdir(path: *const u8) -> isize {
     }
 }
 
-pub fn sys_openat(dirfd: usize, path: *const u8, flags: u32, mode: u32) -> isize {
+  //自己实现的sys_openat
+  //sys_openat接收四个参数，分别为目录描述符（文件所在目录的文件描述符）、路径、打开标志和文件权限模式。
+  //函数需要按照flags指定的打开模式来查找path指定的文件，并以相应权限打开，将文件描述符插入到请求的task中，若失败需要返回相应错误码。
+  pub fn sys_openat(dirfd: usize, path: *const u8, flags: u32, mode: u32) -> isize {  
     let task = current_task().unwrap();
     let token = task.get_user_token();
-    let path = match translated_str(token, path) {
-        Ok(path) => path,
-        Err(errno) => return errno,
+    let mut fd_table = task.files.lock();
+    let file_descriptor = match dirfd {    //根据dirfd获取文件描述符
+        AT_FDCWD => task.fs.lock().working_inode.as_ref().clone(),
+        fd => {
+            match fd_table.get_ref(fd) {
+                Ok(file_descriptor) => file_descriptor.clone(),
+                Err(errno) => return errno,
+            }
+        }
     };
     let flags = match OpenFlags::from_bits(flags) {
         Some(flags) => flags,
         None => {
             warn!("[sys_openat] unknown flags");
             return EINVAL;
-        }
-    };
-    let mode = StatMode::from_bits(mode);
-    info!(
-        "[sys_openat] dirfd: {}, path: {}, flags: {:?}, mode: {:?}",
-        dirfd as isize, path, flags, mode
-    );
-    let mut fd_table = task.files.lock();
-    let file_descriptor = match dirfd {
-        AT_FDCWD => task.fs.lock().working_inode.as_ref().clone(),
-        fd => match fd_table.get_ref(fd) {
-            Ok(file_descriptor) => file_descriptor.clone(),
-            Err(errno) => return errno,
         },
     };
-
-    let new_file_descriptor = match file_descriptor.open(&path, flags, false) {
-        Ok(file_descriptor) => file_descriptor,
-        Err(errno) => return errno,
+    let path = translated_str(token, path).unwrap();
+    let new_file_descriptor =match file_descriptor.open(&path, flags, false) {
+            Ok(new_file_descriptor) => new_file_descriptor,
+            Err(errno) =>return errno,
     };
-
-    let new_fd = match fd_table.insert(new_file_descriptor) {
-        Ok(fd) => fd,
-        Err(errno) => return errno,
+    let new_fd = match fd_table.insert(new_file_descriptor){
+        Ok(new_fd) => new_fd,
+        Err(errno) =>return errno,
     };
     new_fd as isize
 }
-
 pub fn sys_renameat2(
     olddirfd: usize,
     oldpath: *const u8,
@@ -876,7 +870,58 @@ bitflags! {
         const AT_REMOVEDIR = 0x200;
     }
 }
-
+pub fn sys_linkat(
+    old_dirfd: usize,   //分别指向旧文件所在的目录
+    old_path: *const u8,
+    new_dirfd: usize,   //指向新链接文件所在的目录
+    new_path: *const u8,
+    //flags: u32, 暂时无用
+) -> isize {
+    // 获取当前任务
+    let task = current_task().unwrap();
+    let token = task.get_user_token();
+    // 转换用户空间路径字符串为内核空间路径字符串
+    let old_path = match translated_str(token, old_path) {
+        Ok(path) => path,
+        Err(errno) => return errno,
+    };
+    let new_path = match translated_str(token, new_path) {
+        Ok(path) => path,
+        Err(errno) => return errno,
+    };
+    // 获取旧路径对应的文件描述符
+    let old_file_descriptor = match old_dirfd {
+        AT_FDCWD => task.fs.lock().working_inode.as_ref().clone(),
+        fd => {
+            let fd_table = task.files.lock();
+            match fd_table.get_ref(fd as usize) {
+                Ok(file_descriptor) => file_descriptor.clone(),
+                Err(errno) => return errno,
+            }
+        }
+    };
+    // 获取新路径对应的文件描述符
+    let new_file_descriptor = match new_dirfd {
+        AT_FDCWD => task.fs.lock().working_inode.as_ref().clone(),
+        fd => {
+            let fd_table = task.files.lock();
+            match fd_table.get_ref(fd as usize) {
+                Ok(file_descriptor) => file_descriptor.clone(),
+                Err(errno) => return errno,
+            }
+        }
+    };
+    // 调用底层函数执行硬链接操作
+    match FileDescriptor::linkat(
+        &old_file_descriptor,
+        &old_path,
+        &new_file_descriptor,
+        &new_path,
+    ) {
+        Ok(_) => SUCCESS,
+        Err(errno) => errno,
+    }
+}
 /// # Warning
 /// Currently we have no hard-link so this syscall will remove file directly.
 pub fn sys_unlinkat(dirfd: usize, path: *const u8, flags: u32) -> isize {

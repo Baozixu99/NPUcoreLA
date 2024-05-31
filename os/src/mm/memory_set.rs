@@ -480,6 +480,7 @@ impl<T: PageTable> MemorySet<T> {
                 MapPermission::R | MapPermission::W
             );
         }
+        memory_set.page_table.print_page_table();
         memory_set
     }
     pub fn map_elf(&mut self, elf: &xmas_elf::ElfFile) -> Result<(usize, ELFInfo), isize> {
@@ -700,47 +701,33 @@ impl<T: PageTable> MemorySet<T> {
             );
         })
     }
+    //修改后的sbrk函数
     pub fn sbrk(&mut self, heap_pt: usize, heap_bottom: usize, increment: isize) -> usize {
-        let old_pt: usize = heap_pt;
-        let new_pt: usize = old_pt + increment as usize;
+        let old_pt = heap_pt;
+        let new_pt = (heap_pt as isize + increment) as usize; //tran
         if increment > 0 {
-            let limit = heap_bottom + USER_HEAP_SIZE;
-            if new_pt > limit {
-                warn!(
-                    "[sbrk] out of the upperbound! upperbound: {:X}, old_pt: {:X}, new_pt: {:X}",
-                    limit, old_pt, new_pt
-                );
+            if new_pt > heap_pt + USER_HEAP_SIZE {
+                warn!("increment too big");
                 return old_pt;
-            } else {
+            }else {
                 self.mmap(
                     old_pt,
                     increment as usize,
                     MapPermission::R | MapPermission::W | MapPermission::U,
                     MapFlags::MAP_ANONYMOUS | MapFlags::MAP_FIXED | MapFlags::MAP_PRIVATE,
-                    1usize.wrapping_neg(),
                     0,
+                    0
                 );
-                trace!("[sbrk] heap area expanded to {:X}", new_pt);
             }
-        } else if increment < 0 {
-            // shrink to `heap_bottom` would cause duplicated insertion of heap area in future
-            // so we simply reject it here
-            if new_pt <= heap_bottom {
-                warn!(
-                    "[sbrk] out of the lowerbound! lowerbound: {:X}, old_pt: {:X}, new_pt: {:X}",
-                    heap_bottom, old_pt, new_pt
-                );
+        }else if increment <0 {
+            if new_pt < heap_bottom{
+                warn!("increment too small");
                 return old_pt;
-            // attention that if the process never call sbrk before, it would have no heap area
-            // we only do shrinking when it does have a heap area
-            } else {
-                self.munmap(old_pt, increment as usize).unwrap();
-                trace!("[sbrk] heap area shrinked to {:X}", new_pt);
+            }else {
+                self.munmap(old_pt,(-increment) as usize).unwrap();
             }
-            // we need to adjust `heap_pt` if it's not out of bound
-            // in spite of whether the process has a heap area
         }
-        new_pt
+        return new_pt;
     }
     pub fn mmap(
         &mut self,
@@ -752,13 +739,13 @@ impl<T: PageTable> MemorySet<T> {
         offset: usize,
     ) -> isize {
         // not aligned on a page boundary
-        if start & 0xfff != 0 {
+        if start & 0xfff != 0 {//检测是否边界对齐
             return EINVAL;
         }
         let len = if len == 0 { PAGE_SIZE } else { len };
         let task = current_task().unwrap();
         let idx = self.last_mmap_area_idx();
-        let start_va: VirtAddr = if flags.contains(MapFlags::MAP_FIXED) {
+        let start_va: VirtAddr = if flags.contains(MapFlags::MAP_FIXED) { //MAP_FIXED使用指定的映射起始地址
             // unmap if exists
             unsafe { self.munmap(start, len).unwrap_unchecked() };
             start.into()
@@ -770,9 +757,14 @@ impl<T: PageTable> MemorySet<T> {
                     && area.map_file.is_none()
                 {
                     debug!("[mmap] merge with previous area, call expand_to");
-                    let end_va: VirtAddr = area.get_end::<T>().into();
-                    area.expand_to::<T>(VirtAddr::from(end_va.0 + len)).unwrap();
-                    return end_va.0 as isize;
+                    //实现 mmap 系统调用的 MAP_ANONYMOUS
+                    let old_end: VirtAddr = area.get_end::<T>().into();
+                    let new_end:VirtAddr = (old_end.0+len).into();
+                    area.expand_to::<T>(new_end).unwrap();
+                    //表示请求的权限prot与当前区域的权限相同，同时当前区域没有映射文件（即map_file.is_none()），
+                    //那么认为可以通过expand_to合并当前区域，不用重新申请MapArea。
+                    //这个return表示映射操作已经完成，不需要进一步的处理（如分配新区域或插入新映射区等）
+                    return old_end.0 as isize;
                 }
                 area.get_end::<T>().into()
             } else {
@@ -786,20 +778,25 @@ impl<T: PageTable> MemorySet<T> {
             prot,
             None,
         );
+        //MAP_PRIVATE这个标志最常用于在进程中只读地映射一个文件，并且不想把进程的修改写回到文件中
+        //下面是具体实现的内容
+        // 以下是实现的大致思路：
+        // 通过传入的文件描述符克隆一个文件对象；
+        // 使用lseek方法移动文件指针到指定位置；
+        // 判断访问权限，文件是否可读；
+        // 将文件对象保存到映射区域中，表示这个文件是映射区域的内容来源。
         if !flags.contains(MapFlags::MAP_ANONYMOUS) {
-            warn!("[mmap] file-backed map!");
             let fd_table = task.files.lock();
-            match fd_table.get_ref(fd) {
-                Ok(file_descriptor) => {
-                    if !file_descriptor.readable() {
-                        return EACCES;
-                    }
-                    let file = file_descriptor.file.deep_clone();
-                    file.lseek(offset as isize, SeekWhence::SEEK_SET).unwrap();
-                    new_area.map_file = Some(file);
-                }
+            let file_descriptor = match fd_table.get_ref(fd){  
+                Ok(file_descriptor) => file_descriptor.clone(),
                 Err(errno) => return errno,
+            };
+            let file = file_descriptor.file.deep_clone();
+            file.lseek(offset as isize, SeekWhence::SEEK_SET).unwrap();
+            if !file.readable(){
+                return EACCES;
             }
+            new_area.map_file = Some(file);
         }
         // insert MapArea and keep the order
         if let Some((idx, _)) = self
@@ -816,6 +813,7 @@ impl<T: PageTable> MemorySet<T> {
         }
         start_va.0 as isize
     }
+
     pub fn munmap(&mut self, start: usize, len: usize) -> Result<(), isize> {
         let start_va = VirtAddr::from(start);
         let end_va = VirtAddr::from(start + len);
@@ -826,31 +824,32 @@ impl<T: PageTable> MemorySet<T> {
         let start_vpn = start_va.floor();
         let end_vpn = end_va.ceil();
         let page_table = &mut self.page_table;
-        let mut found_area = false;
-        let mut delete: Vec<usize> = Vec::new();
-        let mut break_apart_idx: Option<usize> = None;
+        let mut found_area = false;               //标记是否找到了需要处理的映射区
+        let mut delete: Vec<usize> = Vec::new();        //收集待删除的区域索引
+        let mut break_apart_idx: Option<usize> = None;  //记录需要分割的区域索引
+         //处理映射区域
         self.areas.iter_mut().enumerate().for_each(|(idx, area)| {
             if let Some((overlap_start, overlap_end)) = area.check_overlapping(start_vpn, end_vpn) {
                 found_area = true;
                 let area_start_vpn: VirtPageNum = area.get_start::<T>();
                 let area_end_vpn = area.get_end::<T>();
-                if overlap_start == area_start_vpn && overlap_end == area_end_vpn {
+                if overlap_start == area_start_vpn && overlap_end == area_end_vpn { //若完全重叠，取消整个区域映射，记录索引用于删除。
                     trace!("[munmap] unmap whole area, idx: {}", idx);
-                    if let Err(_) = area.unmap(page_table) {
+                    if let Err(_) = area.unmap(page_table) {     //从给定的 PageTable中取消当前内存区域内的所有页面映射
                         warn!(
                             "[munmap] Some pages are already unmapped, is it caused by lazy alloc?"
                         );
                     }
                     delete.push(idx);
-                } else if overlap_start == area_start_vpn {
-                    trace!("[munmap] unmap lower part, call rshrink_to");
+                } else if overlap_start == area_start_vpn { //若起始端重叠，调整区域的下界，确保是交集
+                    trace!("[munmap] unmap lower part, call rshrink_to");//取消area_start_vpn到overlap_end之间的映射区域
                     if let Err(_) = area.rshrink_to(page_table, VirtAddr::from(overlap_end)) {
                         warn!(
                             "[munmap] Some pages are already unmapped, is it caused by lazy alloc?"
                         );
                     }
-                } else if overlap_end == area_end_vpn {
-                    trace!("[munmap] unmap higher part, call shrink_to");
+                } else if overlap_end == area_end_vpn { //若结束端重叠，调整区域的上界，确保是交集
+                    trace!("[munmap] unmap higher part, call shrink_to");//取消overlap_start到area_end_vpn之间的映射区域
                     if let Err(_) = area.shrink_to(page_table, VirtAddr::from(overlap_start)) {
                         warn!(
                             "[munmap] Some pages are already unmapped, is it caused by lazy alloc?"
@@ -858,14 +857,15 @@ impl<T: PageTable> MemorySet<T> {
                     }
                 } else {
                     trace!("[munmap] unmap internal part, call into_three");
-                    break_apart_idx = Some(idx);
+                    break_apart_idx = Some(idx);     //重叠区域在中间
                 }
             }
         });
+        //删除已记录的映射区域。
         for idx in delete.into_iter().rev() {
             self.areas.remove(idx);
         }
-        if let Some(idx) = break_apart_idx {
+        if let Some(idx) = break_apart_idx {    //处理重叠区域在中间的情况，分割该区域为三部分，取消中间部分映射，重新插入分割后的两部分到原位置。
             let (mut second, third) = self.areas[idx].into_three(start_vpn, end_vpn).unwrap();
             if let Err(_) = second.unmap(page_table) {
                 warn!("[munmap] Some pages are already unmapped, is it caused by lazy alloc?");

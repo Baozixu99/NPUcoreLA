@@ -388,12 +388,12 @@ impl TaskControlBlock {
         Ok(())
         // **** release current PCB lock
     }
-    pub fn sys_clone(
+    pub fn sys_clone(   //真正的sys_clone
         self: &Arc<TaskControlBlock>,
         flags: CloneFlags,
-        stack: *const u8,
-        tls: usize,
-        exit_signal: Signals,
+        stack: *const u8, //栈指针
+        tls: usize,//线程本地存储
+        exit_signal: Signals, //退出信号
     ) -> Arc<TaskControlBlock> {
         // ---- hold parent PCB lock
         let mut parent_inner = self.acquire_inner_lock();
@@ -436,7 +436,7 @@ impl TaskControlBlock {
             tid,
             tgid,
             kstack,
-            ustack_base: if !stack.is_null() {
+            ustack_base: if !stack.is_null() {//如果 stack 参数不为空，意味着调用者可能已经为新线程提供了用户栈的起始地址，所以直接使用该地址。如果 stack 为空，那么根据 tid 计算出的用户栈的底部地址会被用作用户栈的基地址。
                 stack as usize
             } else {
                 ustack_bottom_from_tid(tid)
@@ -558,8 +558,8 @@ impl Drop for TaskControlBlock {
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum TaskStatus {
-    Ready,
-    Running,
-    Zombie,
-    Interruptible,
+    Ready,    //就绪状态
+    Running,  //运行状态
+    Zombie,   //僵尸状态
+    Interruptible,//中断状态
 }

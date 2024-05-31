@@ -72,17 +72,17 @@ fn move_to_high_address() {
         fn eimg();
     }
     unsafe {
-        let img = core::slice::from_raw_parts(
+        let img = core::slice::from_raw_parts(    // 创建一个不可变切片，用于表示镜像的数据
             simg as usize as *mut u8,
             eimg as usize - simg as usize
         );
         // 从DISK_IMAGE_BASE到MEMORY_END
-        let mem_disk = core::slice::from_raw_parts_mut(
+        let mem_disk = core::slice::from_raw_parts_mut(  // 创建一个可变切片，用于表示目标内存
             DISK_IMAGE_BASE as *mut u8,
             0x800_0000
         );
-        mem_disk.fill(0);
-        mem_disk[..img.len()].copy_from_slice(img);
+        mem_disk.fill(0);   // 清空目标内存
+        mem_disk[..img.len()].copy_from_slice(img); // 将镜像数据复制到目标内存中
     }
 }
 

@@ -108,6 +108,8 @@ pub fn syscall_name(id: usize) -> &'static str {
         SYSCALL_LS => "ls",
         SYSCALL_SHUTDOWN => "shutdown",
         SYSCALL_CLEAR => "clear",
+        SYSCALL_MYCALL => "mycall",
+        SYSCALL_PRINT_TCB => "print_tcb",
         _ => "unknown",
     }
 }
@@ -342,6 +344,8 @@ pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
             args[3] as *const u8,
             args[4] as u32,
         ),
+        SYSCALL_MYCALL => sys_mycall(),
+        SYSCALL_PRINT_TCB => sys_printtcb(args[0] as *mut usize),  
         _ => {
             error!(
                 "Unsupported syscall:{} ({}), calling over arguments:",

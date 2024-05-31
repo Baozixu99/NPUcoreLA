@@ -56,3 +56,17 @@ pub fn sleep(period_ms: usize) {
 pub fn shutdown() -> isize{
     sys_shutdown()
 }
+
+pub fn mycall() -> isize {
+    sys_mycall()
+}
+
+//usr_call.rs添加下面代码
+pub fn print_tcb(message: *mut usize) -> isize {
+    sys_printtcb(message)
+}
+
+//usr_call.rs 添加代码
+pub fn getrusage(who: isize, rusage:*mut usize) -> isize {
+    sys_getrusage(who, rusage)
+}

@@ -561,6 +561,110 @@ impl DirectoryTreeNode {
 
         Ok(())
     }
+    pub fn linkat(old_path: &str, new_path: &str) -> Result<(), isize> {
+        // 确保路径以 '/' 开头
+        assert!(old_path.starts_with('/'));
+        assert!(new_path.starts_with('/'));
+    
+        // 解析目录路径
+        let mut old_comps = Self::parse_dir_path(old_path);
+        let mut new_comps = Self::parse_dir_path(new_path);
+    
+        // 获取最后一个组件（文件名）
+        let old_last_comp = old_comps.pop().unwrap();
+        let new_last_comp = new_comps.pop().unwrap();
+    
+        // 获取旧路径的父目录节点
+        let old_par_inode = match ROOT.cd_comp(&old_comps) {
+            Ok(inode) => inode,
+            Err(errno) => return Err(errno),
+        };
+    
+        // 获取新路径的父目录节点
+        let new_par_inode = match ROOT.cd_comp(&new_comps) {
+            Ok(inode) => inode,
+            Err(errno) => return Err(errno),
+        };
+    
+        // 定义目录树节点的锁类型
+        type ChildLockType<'a> = RwLockWriteGuard<'a, Option<BTreeMap<String, Arc<DirectoryTreeNode>>>>;
+    
+        // 初始化锁
+        let old_lock: Arc<Mutex<ChildLockType<'_>>>;
+        let new_lock: Arc<Mutex<ChildLockType<'_>>>;
+    
+        // 确定锁的顺序
+        if old_comps == new_comps {
+            old_lock = Arc::new(Mutex::new(old_par_inode.children.write()));
+            new_lock = old_lock.clone();
+        } else if old_comps < new_comps {
+            old_lock = Arc::new(Mutex::new(old_par_inode.children.write()));
+            new_lock = Arc::new(Mutex::new(new_par_inode.children.write()));
+        } else {
+            new_lock = Arc::new(Mutex::new(new_par_inode.children.write()));
+            old_lock = Arc::new(Mutex::new(old_par_inode.children.write()));
+        }
+    
+        // 打开旧路径的子文件
+        let old_inode = match old_par_inode.try_to_open_subfile(old_last_comp, &mut (*old_lock.lock())) {
+            Ok(inode) => inode,
+            Err(errno) => return Err(errno),
+        };
+    
+        // 检查旧文件是否正在使用
+        if *old_inode.spe_usage.lock() > 0 {
+            return Err(EBUSY);
+        }
+    
+        // 确保在同一文件系统中
+        if old_inode.filesystem.fs_id != new_par_inode.filesystem.fs_id {
+            return Err(EXDEV);
+        }
+    
+        // 获取旧文件和新文件的键
+        let old_key = old_last_comp.to_string();
+        let new_key = new_last_comp.to_string();
+    
+        // 尝试打开新路径的子文件
+        match new_par_inode.try_to_open_subfile(new_last_comp, &mut (*new_lock.lock())) {
+            Ok(new_inode) => {
+                if new_inode.file.is_dir() && !old_inode.file.is_dir() {
+                    return Err(EISDIR);
+                }
+                if old_inode.file.is_dir() && !new_inode.file.is_dir() {
+                    return Err(ENOTDIR);
+                }
+                if *new_inode.spe_usage.lock() > 0 {
+                    return Err(EBUSY);
+                }
+                // 如果文件已存在，则返回错误
+                return Err(EEXIST);
+            }
+            Err(ENOENT) => {}
+            Err(errno) => return Err(errno),
+        }
+    
+        // 根据文件系统类型创建硬链接
+        match old_inode.filesystem.fs_type {
+            FS::Fat32 => {
+                let old_file = old_inode.file.downcast_ref::<OSInode>().unwrap();
+                let new_par_file = new_par_inode.file.downcast_ref::<OSInode>().unwrap();
+                new_par_file.link_child(new_last_comp, old_file)?;
+            }
+            FS::Null => return Err(EACCES),
+        }
+    
+        // 更新目录树节点
+        let value = old_lock.lock().as_mut().unwrap().get(&old_key).unwrap().clone();
+        let new_value = DirectoryTreeNode::new(
+            new_key.clone(),
+            new_par_inode.filesystem.clone(),
+            value.file.deep_clone(),
+            Arc::downgrade(&new_par_inode.get_arc()),
+        );
+        new_lock.lock().as_mut().unwrap().insert(new_key, new_value);
+        Ok(())
+    }
 }
 #[cfg(feature = "oom_handler")]
 pub fn oom() -> usize {

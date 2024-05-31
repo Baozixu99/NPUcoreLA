@@ -31,8 +31,8 @@ fn main() -> i32 {
     let mut exit_code: i32 = 0;
     let pid = fork();
     if pid == 0 {
-        exec(path, &[path.as_ptr() as *const u8, "-c\0".as_ptr(), "./run-all.sh\0".as_ptr(), core::ptr::null()], &environ);
-        //exec(path, &[path.as_ptr() as *const u8, core::ptr::null()], &environ);
+        //exec(path, &[path.as_ptr() as *const u8, "-c\0".as_ptr(), "./run-all.sh\0".as_ptr(), core::ptr::null()], &environ);
+        exec(path, &[path.as_ptr() as *const u8, core::ptr::null()], &environ);
     } else {
         waitpid(pid as usize, &mut exit_code);
     }
