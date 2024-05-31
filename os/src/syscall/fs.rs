@@ -495,17 +495,16 @@ pub fn sys_dup(oldfd: usize) -> isize {
     newfd as isize
 }
 pub fn sys_dup2(oldfd: usize, newfd: usize) -> isize {
-    info!("[sys_dup3] oldfd: {}, newfd: {}",oldfd,newfd);
-    // if oldfd == newfd {
-    //     return newfd as isize;
-    // }
+    info!("[sys_dup2] oldfd: {}, newfd: {}",oldfd,newfd);
+    if oldfd == newfd {
+        return newfd as isize;
+    }
     let task = current_task().unwrap();
     let mut fd_table = task.files.lock();
     let mut file_descriptor = match fd_table.get_ref(oldfd) {
         Ok(file_descriptor) => file_descriptor.clone(),
         Err(errno) => return errno,
     };
-    file_descriptor.set_cloexec(false);
     match fd_table.insert_at(file_descriptor, newfd) {
         Ok(fd) => fd as isize,
         Err(errno) => errno,
