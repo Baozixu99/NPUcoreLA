@@ -589,9 +589,9 @@ pub fn sys_readlinkat(dirfd: usize, pathname: *const u8, buf: *mut u8, bufsiz: u
 
 bitflags! {
     pub struct FstatatFlags: u32 {
-        const AT_EMPTY_PATH = 0x1000;
-        const AT_NO_AUTOMOUNT = 0x800;
-        const AT_SYMLINK_NOFOLLOW = 0x100;
+        const AT_EMPTY_PATH = 0x1000;       //路径参数为空字符串，可根据文件描述符（而不是路径）进行
+        const AT_NO_AUTOMOUNT = 0x800;      //阻止系统在访问路径过程中自动挂载文件系统
+        const AT_SYMLINK_NOFOLLOW = 0x100;  //直接获取符号链接的信息而不是它指向的文件的信息
     }
 }
 
@@ -660,6 +660,48 @@ pub fn sys_fstat(fd: usize, statbuf: *mut u8) -> isize {
     SUCCESS
 }
 
+pub fn sys_statx(dirfd: usize, path: *const u8, flags: u32, mask: u32, buf: *mut u8) -> isize {
+    let token = current_user_token();//获取物理页帧
+    let path = match translated_str(token, path) { //将用户空间的字符串路径转换成内核空间的字符串路径
+        Ok(path) => path,
+        Err(errno) => return errno,
+    };
+    let flags = match FstatatFlags::from_bits(flags) {
+        Some(flags) => flags,
+        None => {
+            warn!("[sys_statx] unknown flags");
+            return EINVAL;
+        }
+    };
+
+    info!(
+        "[sys_statx] dirfd: {}, path: {:?}, flags: {:?}",
+        dirfd as isize, path, flags,
+    );
+
+    let task = current_task().unwrap();
+    let file_descriptor = match dirfd {
+        AT_FDCWD => task.fs.lock().working_inode.as_ref().clone(),
+        fd => {
+            let fd_table = task.files.lock();
+            match fd_table.get_ref(fd) {         //获取当前进程的文件描述符
+                Ok(file_descriptor) => file_descriptor.clone(),
+                Err(errno) => return errno,
+            }
+        }
+    };
+
+    match file_descriptor.open(&path, OpenFlags::O_RDONLY, false) {//获取打开文件的新的文件描述符
+        Ok(file_descriptor) => {//调用copy_to_user将文件信息内容拷贝到buf中
+            if copy_to_user(token, &file_descriptor.get_stat(), buf as *mut Stat).is_err() {
+                log::error!("[sys_statx] Failed to copy to {:?}", buf);
+                return EFAULT;
+            };
+            SUCCESS
+        }
+        Err(errno) => errno,
+    }
+}
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Statfs {

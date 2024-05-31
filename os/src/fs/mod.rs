@@ -313,7 +313,7 @@ pub struct FdTable {
 
 #[allow(unused)]
 impl FdTable {
-    pub const DEFAULT_FD_LIMIT: usize = 128;
+    pub const DEFAULT_FD_LIMIT: usize = 128; //原本为64，增加到128后可以通过dup2测试
     pub const SYSTEM_FD_LIMIT: usize = SYSTEM_FD_LIMIT;
     pub fn new(inner: Vec<Option<FileDescriptor>>) -> Self {
         Self {
