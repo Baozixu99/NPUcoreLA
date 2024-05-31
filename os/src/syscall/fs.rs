@@ -693,7 +693,9 @@ pub fn sys_statx(dirfd: usize, path: *const u8, flags: u32, mask: u32, buf: *mut
 
     match file_descriptor.open(&path, OpenFlags::O_RDONLY, false) {//获取打开文件的新的文件描述符
         Ok(file_descriptor) => {//调用copy_to_user将文件信息内容拷贝到buf中
-            if copy_to_user(token, &file_descriptor.get_stat(), buf as *mut Stat).is_err() {
+            // if copy_to_user(token, &file_descriptor.get_stat(), buf as *mut Stat).is_err() {
+            let buf_st_size_ptr = unsafe { buf.offset(40) }; //获得st_size的偏移地址
+            if copy_to_user(token, &file_descriptor.get_stat().get_size(), buf_st_size_ptr as *mut usize).is_err() {
                 log::error!("[sys_statx] Failed to copy to {:?}", buf);
                 return EFAULT;
             };
