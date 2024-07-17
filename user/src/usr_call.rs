@@ -70,3 +70,7 @@ pub fn print_tcb(message: *mut usize) -> isize {
 pub fn getrusage(who: isize, rusage:*mut usize) -> isize {
     sys_getrusage(who, rusage)
 }
+//usr_call.rs 添加代码
+pub fn sbrk(increment:isize) -> isize {
+    sys_sbrk(increment)
+}

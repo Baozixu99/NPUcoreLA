@@ -187,3 +187,7 @@ pub fn sys_printtcb(message: *mut usize) -> isize {
 pub fn sys_getrusage(who: isize, rusage:*mut usize) -> isize {
     syscall(SYSCALL_GETRUSAGE, [who as usize, rusage as usize, 0])
 }
+
+pub fn sys_sbrk(increment:isize) -> isize{
+    syscall(SYSCALL_SBRK,[increment as usize,0,0]) 
+}

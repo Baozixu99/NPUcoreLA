@@ -724,7 +724,7 @@ impl<T: PageTable> MemorySet<T> {
                 warn!("increment too small");
                 return old_pt;
             }else {
-                self.munmap(old_pt,(-increment) as usize).unwrap();
+                self.munmap(new_pt,(-increment) as usize).unwrap();
             }
         }
         return new_pt;
