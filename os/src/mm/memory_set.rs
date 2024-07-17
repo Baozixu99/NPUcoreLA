@@ -724,7 +724,7 @@ impl<T: PageTable> MemorySet<T> {
                 warn!("increment too small");
                 return old_pt;
             }else {
-                self.munmap(new_pt,(-increment) as usize).unwrap();
+                self.munmap(new_pt,(-increment) as usize).unwrap();// 修复: 当 increment < 0 时, 应使用 new_pt 作为 munmap 的起始地址，而非 old_pt
             }
         }
         return new_pt;
