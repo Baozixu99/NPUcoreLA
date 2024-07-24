@@ -36,7 +36,15 @@ make run
 
 ## 相关文档
 
+- [适配qemu-2k1000工作](https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/raw/main/docs/适配qemu-2k1000过程.md)
 
+- [QEMU运行NPUcoreLA步骤](https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/raw/main/docs/qemu运行NPUcoreLA.md)
+- [核心系统调用的实现](https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/blob/main/docs/核心系统调用的实现.md)
+- [rust学习记录](https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/raw/main/docs/rust学习记录.md)
+- 内存管理
+- 进程管理
+- 文件系统
+- 系统调用
 
 ## 目录结构
 
