@@ -6,7 +6,7 @@ NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](
 
 <img src="https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/raw/main/docs/picture/NPUcore%E6%9E%B6%E6%9E%84%E5%9B%BE%EF%BC%88%E6%97%A0%E8%89%B2%E7%89%88%EF%BC%89.png?inline=false" width="60%">
 
-## 0.基础环境配置
+## 基础环境配置
 
 ```shell
 rustc --version
@@ -17,13 +17,13 @@ Loong Arch GCC 12：百度网盘链接: https://pan.baidu.com/s/1xHriNdgcNzzn-X9
 
 Loong Arch GCC 13： https://github.com/LoongsonLab/oscomp-toolchains-for-oskernel
 
-## 1.环境准备
+## 环境准备
 
 ```
 make qemu-download
 ```
 
-## 2.运行方式
+## 运行方式
 
 ```
 make all
@@ -51,7 +51,7 @@ make run
 ```shell
 NPUcoreLA
 ├── Makefile            # 顶级Makefile，用于编译和构建整个项目
-├── docs       			# 相关文档 
+├── docs                # 相关文件
 ├── easy-fs-fuse        # 包含文件系统和操作系统内核镜像  
 ├── os                  # 内核核心代码存放目录  
 │   ├── Makefile        # 内核的构建和运行脚本  
