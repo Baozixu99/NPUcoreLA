@@ -1,6 +1,6 @@
 # NPUcoreLA
 
-NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](https://gitlab.eduxiji.net/educg-group-17066-1466467/202310699111039-2789)，NPUcore+LA支持在QEMU-2K0500，以及龙芯2K0500上运行，为了满足大赛要求，我们对NPUcore+LA进行了适配工作（[适配qemu-2k1000工作](./docs/适配qemu-2k1000过程.md)），NPUcoreLA能够成功运行在QEMU-2K1000以及龙芯2K1000上。在初次提交测评时，NPUcoreLA得到了79分。经过修复部分测试用例后，我们最终满分通过了初赛的测试。目前，NPUcoreLA在QEMU-2K1000上已支持lua、busybox、lmbench以及部分系统调用测试用例。未来，我们计划进一步添加对2K1000实机开发板的更多测试用例支持。
+NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](https://gitlab.eduxiji.net/educg-group-17066-1466467/202310699111039-2789)，NPUcore+LA支持在QEMU-2K0500，以及龙芯2K0500上运行，为了满足大赛要求，我们对NPUcore+LA进行了适配工作（[适配qemu-2k1000工作](./docs/适配qemu-2k1000过程.md)），NPUcoreLA能够成功运行在QEMU-2K1000以及龙芯2K1000上。在初次提交测评时，NPUcoreLA得到了79分。经过修复部分测试用例后，我们最终满分通过了初赛的测试。目前，NPUcoreLA在QEMU-2K1000上已支持lua、busybox、lmbench以及部分系统调用测试用例。我们计划进一步添加对2K1000实机开发板的更多测试用例支持，同时探索支持ext4文件系统的过程。
 
 ## NPUcoreLA系统架构图
 
