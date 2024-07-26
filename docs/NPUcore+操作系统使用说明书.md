@@ -82,7 +82,7 @@ rustc –version
 
 若出现 rustc 1.76.0-nightly 类似的输出说明安装正确，如下图所示：
 
-![Rustup 版本号](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片2.png)
+![Rustup 版本号](picture/Rustup_版本号.png)
 
 下面通过上述步骤安装好的 rustup 和 cargo 来安装相关软件包。在命令行中键入下面命令，安装 loongarch64 标准库：
 
@@ -154,7 +154,7 @@ export PATH=${PATH}:/opt/gcc-13.2.0-loongarch64-linux-gnu/bin
 
 如果配置正确，输入“loongarch64-linux-gnu-gcc -v”命令后，会显示出详细的版本号，如图所示。
 
-![LoongArch GCC 版本号](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片3.png)
+![LoongArch GCC 版本号](picture/LoongArch_GCC_版本号.png)
 
 #### **1.2.5 安装编译 QEMU 源码所需的依赖包**
 
@@ -192,7 +192,7 @@ git clone https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela.git
 
 如图所示，为成功拉取项目的结果，红框所框住的即为项目文件。
 
-![从仓库拉取项目结果](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片4.png)
+![从仓库拉取项目结果](picture/从仓库拉取项目结果.png)
 
 ### **2.2 下载 QEMU-2K1000**
 
@@ -210,7 +210,7 @@ cd oskernel2024-npucorela
 make qemu-download
 ```
 
-![make qemu-download 运行结果](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片5.png)
+![make qemu-download 运行结果](picture/make_qemu-download_运行结果.png)
 
 ### **2.3 运行方式**
 
@@ -220,7 +220,7 @@ make qemu-download
 make all
 ```
 
-![make all 运行结果](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片6.png)
+![make all 运行结果](picture/make_all_运行结果.png)
 
 在 oskernel2024-npucorela 目录下通过 make run 命令运行内核，进入命令行界面，运行结果如图所示：
 
@@ -228,7 +228,7 @@ make all
 make run
 ```
 
-![ make run 运行结果](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片7.png)
+![ make run 运行结果](picture/make_run_运行结果.png)
 
 ### **2.4 运行效果**
 
@@ -238,7 +238,7 @@ make run
 ls
 ```
 
-![系统运行结果](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片8.png)
+![系统运行结果](picture/系统运行结果.png)
 
 ### **2.5 其他命令**
 
