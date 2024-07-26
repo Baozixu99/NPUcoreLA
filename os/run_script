@@ -1,0 +1,26 @@
+#!/usr/bin/expect -f
+# set qemu_bin [lindex $argv 0];
+# set qemu_arg [lrange $argv 1 end];
+set timeout -1
+spawn {*}$argv
+set bin_name [lindex $argv 0];
+set sleep_time 0
+
+proc test_cmd {file_name num} {
+#    upvar 2 $sleep_time sleep_time
+    expect "\[1m\[32mNPUCore\[0m:\[1m\[34m/\[0m#"
+    sleep $num
+    send $file_name
+}
+
+if  { $bin_name != "qemu-system-riscv64" } {
+    expect "Device(s) found"
+    send "c"
+    expect "=>"
+    send "tftpboot uImage\n"
+    expect "=>"
+    send "bootm\n"
+}
+
+
+interact
