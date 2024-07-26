@@ -66,7 +66,7 @@ curl -sSf https://sh.rustup.rs | sh
 
 默认的是 stable 版本，如图所示：
 
-![rustup默认安装版本](D:\jiawei\NPUcore+操作系统使用说明书.assets\图片1.png)
+![rustup默认安装版本](docs/picture/rustup默认安装版本.png)
 
 由于我们使用的是 nightly 版本，不是默认的 stable，可执行下面命令切换到 nightly 版本：
 
