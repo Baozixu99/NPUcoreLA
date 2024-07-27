@@ -25,7 +25,7 @@ curl -sSf https://sh.rustup.rs | sh
 
 如果没有curl，请先安装curl：**sudo apt-get install curl**
 
-<img src="C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120180711793.png" alt="image-20231120180711793" style="zoom: 67%;" />
+![版本安装](picture/版本安装.png)
 
 如果默认选择了stable版本，可执行下面命令切换到nightly版本
 
@@ -43,7 +43,7 @@ rustc --version
 
 若出现类似下⾯的输出，即代表安装成功：
 
-![image-20231120185704080](C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120185704080.png)
+![版本](picture/版本.png)
 
 安装完成后，我们需要**重新打开⼀个终端**来让之前设置的环境变量⽣效。
 
@@ -146,7 +146,7 @@ la464-loongarch-cpu
 git clone https://gitlab.eduxiji.net/202310699111039/project1466467-172876.git
 ```
 
-![image-20231120205442049](C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120205442049.png)
+![拉取NPUcore+LA项目到本地](picture/拉取NPUcore+LA项目到本地.png)
 
 上图红框中的project1466467-172876就是我们拉取下来的项目了，由于文件名字太长，下面通过mv命令，将文件名字改成NPUcoreLA:
 
@@ -154,7 +154,7 @@ git clone https://gitlab.eduxiji.net/202310699111039/project1466467-172876.git
 mv project1466467-172876 NPUcoreLA
 ```
 
-![image-20231120205726235](C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120205726235.png)
+![项目目录](picture/项目目录.png)
 
 上图的NPUcoreLA便是我们的项目目录了。
 
@@ -167,7 +167,7 @@ cd os && make
 
 遇到的第一个报错：
 
-![image-20231120202149871](C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120202149871.png)
+![第一个报错](picture/第一个报错.png)
 
 这个错误似乎表明在制作镜像或者在执行特定的脚本时出现了问题。
 
@@ -186,7 +186,7 @@ make qemu-flash-fat-img
 
 遇到了第二个报错：
 
-![image-20231120202234949](C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120202234949.png)
+![第二个报错](picture/第二个报错.png)
 
 这个错误是因为os/la_fat文件开头为#!/usr/bin/expect -f 需要安装expect:
 
@@ -203,7 +203,7 @@ make
 
 遇到了第三报错：
 
-![image-20231120202714192](C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120202714192.png)
+![第三个报错](picture/第三个报错.png)
 
 打开报错文件：
 
@@ -213,7 +213,7 @@ vim ./src/main.rs
 
 将报错的#![feature(btree_drain_filter)]和#![feature(drain_filter)]注释掉：
 
-<img src="C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120202915382.png" alt="image-20231120202915382" style="zoom:150%;" />
+![注释代码](picture/注释代码.png)
 
 重新执行：
 
@@ -221,7 +221,7 @@ vim ./src/main.rs
 make
 ```
 
-<img src="C:\Users\86136\AppData\Roaming\Typora\typora-user-images\image-20231120211740596.png" alt="image-20231120211740596" style="zoom:67%;" />
+![成功启动NPUcore](picture/成功启动NPUcore.png)
 
 成功启动NPUcore。
 
