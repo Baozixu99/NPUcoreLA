@@ -4,7 +4,7 @@ NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](
 
 ## NPUcoreLA系统架构图
 
-<img src="https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/raw/main/docs/picture/NPUcore%E6%9E%B6%E6%9E%84%E5%9B%BE%EF%BC%88%E6%97%A0%E8%89%B2%E7%89%88%EF%BC%89.png?inline=false" width="60%">
+![LoongArch_GCC_版本号.png](docs/picture/LoongArch_GCC_版本号.png)
 
 ## 基础环境配置
 
