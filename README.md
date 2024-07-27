@@ -4,7 +4,7 @@ NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](
 
 ## NPUcoreLA系统架构图
 
-![LoongArch_GCC_版本号.png](docs/picture/LoongArch_GCC_版本号.png)
+![LoongArch_GCC_版本号.png](docs/picture/NPUcore架构图（无色版）.png)
 
 ## 基础环境配置
 
