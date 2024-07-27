@@ -1,23 +1,35 @@
 #!/bin/sh
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 BIOS="$SCRIPTPATH"/u-boot-with-spl.bin
+
+# 检查并删除已有的符号链接
+if [ -L /tmp/qemu ]; then
+    rm /tmp/qemu
+fi
 ln -s "$SCRIPTPATH"/../tmp/qemu /tmp
+
 truncate -s 1M $BIOS
 QEMU="$SCRIPTPATH"/../tmp/qemu/bin/qemu-system-loongarch64
 TFTP_DIR="$SCRIPTPATH"/../../../easy-fs-fuse
 OS="$SCRIPTPATH"/nand.dat
-[ -e "$OS" ] || dd if=/dev/zero bs=1M count=$(((256*(2048+64)/2048)))|tr '\000' '\377' > "$OS"
+
+# 检查OS文件是否存在，否则创建
+if [ ! -e "$OS" ]; then
+    dd if=/dev/zero bs=1M count=$(((256*(2048+64)/2048))) | tr '\000' '\377' > "$OS"
+fi
+
 # HARDDISK="$SCRIPTPATH"/2kfs.img
 
-DEBUG_GMAC_PHYAD=0 "$QEMU"\
-         -M ls2k -drive if=pflash,file=$BIOS \
-         -m 1024 \
-         -D $SCRIPTPATH/qemu.log \
-         -serial stdio \
-         -drive if=mtd,file="$OS" \
-         -net nic -net user,net=192.168.1.2/24,tftp=$TFTP_DIR \
-         -net nic -net user,net=10.0.3.0/24\
-         -vnc 0.0.0.0:0 \
-         -smp threads=1 \
-         -s $@ 2>&1 \
-        #  -hda $HARDDISK
+DEBUG_GMAC_PHYAD=0 "$QEMU" \
+    -M ls2k -drive if=pflash,file=$BIOS,format=raw \
+    -m 1024 \
+    -D $SCRIPTPATH/qemu.log \
+    -serial stdio \
+    -drive if=mtd,file="$OS",format=raw \
+    -net nic -net user,net=192.168.1.2/24,tftp=$TFTP_DIR \
+    -net nic -net user,net=10.0.3.0/24 \
+    -vnc 0.0.0.0:0 \
+    -smp threads=1 \
+    -s $@ 2>&1 \
+
+    # -hda $HARDDISK
