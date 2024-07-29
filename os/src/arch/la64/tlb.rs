@@ -1,5 +1,5 @@
-use super::{ASId, TLBEHi, TLBIdx, TLBEL, TLBELO0, TLBELO1};
-use crate::mm::{PhysPageNum, VirtPageNum};
+use register::{ASId, TLBEHi, TLBIdx, TLBEL, TLBELO0, TLBELO1};
+use register::mm::address::{PhysPageNum, VirtPageNum};
 use core::arch::asm;
 pub const USR_ASID: usize = 0;
 pub const KERN_ASID: usize = (1 << 10) - 1;

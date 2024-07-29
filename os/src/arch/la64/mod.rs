@@ -32,7 +32,7 @@ pub use kern_stack::{trap_cx_bottom_from_tid, ustack_bottom_from_tid, KernelStac
 pub use register::*;
 mod kern_stack;
 mod la_libc_import;
-mod register;
+
 mod tlb;
 extern "C" {
     pub fn srfill();

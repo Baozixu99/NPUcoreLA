@@ -2,10 +2,10 @@ mod context;
 mod mem_access;
 use self::context::GeneralRegs;
 
-use super::register::{self, Exception, Interrupt, Trap, ERA};
-use super::{pre_start_init, MErrEntry, DMW, DMW1};
+use register::{self, Exception, Interrupt, Trap, ERA};
+use super::{pre_start_init};
 use crate::arch::la64::laflex::LAFlexPageTable;
-use crate::arch::la64::register::{CrMd, ECfg, LineBasedInterrupt, PrMd, TCfg, TIClr};
+use register::{CrMd, ECfg, LineBasedInterrupt, PrMd, TCfg, TIClr,MErrEntry, DMW, DMW1};
 use crate::arch::la64::trap::mem_access::Instruction;
 use crate::arch::{get_clock_freq, TICKS_PER_SEC};
 use crate::mm::{copy_from_user, copy_to_user, frame_reserve, MemoryError, PageTable, VirtAddr};

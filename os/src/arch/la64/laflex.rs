@@ -11,7 +11,7 @@ use alloc::{sync::Arc, vec::Vec};
 use bitflags::*;
 use log::trace;
 static mut DIRTY: [bool; MEMORY_SIZE*10 / PAGE_SIZE] = [false; MEMORY_SIZE*10 / PAGE_SIZE];
-use super::register::MemoryAccessType;
+use register::MemoryAccessType;
 
 bitflags! {
     /// Page Table Entry flags
@@ -466,9 +466,9 @@ impl PageTable for LAFlexPageTable {
     fn activate(&self) {
         tlb_global_invalidate();
         if self.is_kernel_pt() {
-            super::register::PGDH::from(self.get_root_ppn().0 << PAGE_SIZE_BITS).write();
+            register::PGDH::from(self.get_root_ppn().0 << PAGE_SIZE_BITS).write();
         } else {
-            super::register::PGDL::from(self.get_root_ppn().0 << PAGE_SIZE_BITS).write();
+            register::PGDL::from(self.get_root_ppn().0 << PAGE_SIZE_BITS).write();
         }
     }
     fn is_valid(&self, vpn: VirtPageNum) -> Option<bool> {

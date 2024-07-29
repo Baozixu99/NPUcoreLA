@@ -1,10 +1,9 @@
 use core::fmt::Debug;
 
 use crate::{
-    arch::la64::register::PrMd,
     task::{SignalStack, Signals},
 };
-
+use register::PrMd;
 /// General registers
 #[repr(C)]
 #[derive(Default, Clone, Copy)]
