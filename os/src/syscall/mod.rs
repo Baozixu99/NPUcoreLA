@@ -104,6 +104,7 @@ pub fn syscall_name(id: usize) -> &'static str {
         SYSCALL_WAIT4 => "wait4",
         SYSCALL_PRLIMIT => "prlimit",
         SYSCALL_RENAMEAT2 => "renameat2",
+        SYSCALL_GETRANDOM => "getrandom",
         SYSCALL_FACCESSAT2 => "faccessat2",
         SYSCALL_MEMBARRIER => "membarrier",
         // non-standard
@@ -224,6 +225,7 @@ pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
         SYSCALL_SIGTIMEDWAIT => sys_sigtimedwait(args[0], args[1], args[2]),
         SYSCALL_SIGRETURN => sys_sigreturn(),
         SYSCALL_TIMES => sys_times(args[0] as *mut Times),
+
         SYSCALL_NANOSLEEP => sys_nanosleep(
             args[0] as *const crate::timer::TimeSpec,
             args[1] as *mut crate::timer::TimeSpec,
@@ -278,6 +280,7 @@ pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
             args[4] as *mut u32,
             args[5] as u32,
         ),
+        SYSCALL_GETRANDOM => sys_getrandom(args[0], args[1], args[2]),
         SYSCALL_SET_ROBUST_LIST => sys_set_robust_list(args[0], args[1]),
         SYSCALL_GET_ROBUST_LIST => {
             sys_get_robust_list(args[0] as u32, args[1] as *mut usize, args[2] as *mut usize)

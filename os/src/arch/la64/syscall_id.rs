@@ -87,6 +87,7 @@ pub const SYSCALL_MSYNC: usize = 227;
 pub const SYSCALL_WAIT4: usize = 260; // wait is implemented as wait4(pid, status, options, 0) in pub lib.
 pub const SYSCALL_PRLIMIT: usize = 261;
 pub const SYSCALL_RENAMEAT2: usize = 276;
+pub const SYSCALL_GETRANDOM: usize = 278;
 pub const SYSCALL_MEMBARRIER: usize = 283;
 pub const SYSCALL_FACCESSAT2: usize = 439;
 pub const SYSCALL_STATX: usize = 291;

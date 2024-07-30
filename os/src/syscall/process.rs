@@ -1100,7 +1100,7 @@ pub fn sys_printtcb(message: *mut usize) -> isize {
 
 }
 
-fn sys_fork() -> isize {
+pub fn sys_fork() -> isize {
     let flags = CloneFlags::from_bits(0x00000100).unwrap();  //CLONE_VM⽗⼦进程会共享同⼀个虚拟内存⻚
     let stack = 0 as *const u8;
     let tls = 0 as usize;  //线程本地存储
@@ -1113,4 +1113,9 @@ fn sys_fork() -> isize {
     let new_pid = child.pid.0;
     add_task(child);
     new_pid as isize
+}
+
+//暂未完全实现
+pub fn sys_getrandom(buf:usize,buflen:usize,_flags: usize) -> isize{
+    0
 }
