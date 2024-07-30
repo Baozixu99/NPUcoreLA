@@ -1,6 +1,6 @@
 # cargo config
-os/Cargo.lock
-user/Cargo.lock
+#os/Cargo.lock
+#user/Cargo.lock
 os/src/linker.ld
 os/new_cmd
 
