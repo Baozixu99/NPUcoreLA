@@ -9,5 +9,17 @@ linker = "loongarch64-linux-gnu-gcc"
 [source.crates-io]
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/Baozixu99/config.git"]
+git = "https://github.com/Baozixu99/config.git"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/Baozixu99/register.git"]
+git = "https://github.com/Baozixu99/register.git"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/Baozixu99/virtio-drivers.git"]
+git = "https://github.com/Baozixu99/virtio-drivers.git"
+replace-with = "vendored-sources"
+
 [source.vendored-sources]
 directory = "vendor"

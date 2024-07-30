@@ -12,10 +12,19 @@
 
 [package]
 name = "spin"
-version = "0.5.2"
-authors = ["Mathijs van de Nes <git@mathijs.vd-nes.nl>", "John Ericson <git@JohnEricson.me>"]
-description = "Synchronization primitives based on spinning.\nThey may contain data, are usable without `std`,\nand static initializers are available.\n"
-documentation = "https://mvdnes.github.io/rust-docs/spin-rs/spin/index.html"
+version = "0.7.1"
+authors = ["Mathijs van de Nes <git@mathijs.vd-nes.nl>", "John Ericson <git@JohnEricson.me>", "Joshua Barretto <joshua.s.barretto@gmail.com>"]
+description = "Spin-based synchronization primitives"
 keywords = ["spinlock", "mutex", "rwlock"]
 license = "MIT"
 repository = "https://github.com/mvdnes/spin-rs.git"
+[dependencies.lock_api_crate]
+version = "0.4"
+optional = true
+package = "lock_api"
+
+[features]
+default = ["ticket_mutex"]
+lock_api = ["lock_api_crate"]
+std = []
+ticket_mutex = []

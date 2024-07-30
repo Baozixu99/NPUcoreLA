@@ -18,14 +18,14 @@ spinlocks. If you have access to `std`, it's likely that the primitives in
 
 ## Features
 
-- `Mutex`, `RwLock` and `Once` equivalents
+- `Mutex`, `RwLock`, `Once`, `Lazy` and `Barrier` equivalents
 - Support for `no_std` environments
 - [`lock_api`](https://crates.io/crates/lock_api) compatibility
 - Upgradeable `RwLock` guards
 - Guards can be sent and shared between threads
 - Guard leaking
-- `std` feature to enable yield to the OS scheduler in busy loops
-- `Mutex` can become a ticket lock
+- Ticket locks
+- Different strategies for dealing with contention
 
 ## Usage
 
@@ -38,7 +38,7 @@ spin = "x.y"
 ## Example
 
 When calling `lock` on a `Mutex` you will get a guard value that provides access
-to the data. When this guard is dropped, the lock will be unlocked.
+to the data. When this guard is dropped, the mutex will become available again.
 
 ```rust
 extern crate spin;
@@ -50,19 +50,19 @@ fn main() {
     let thread = thread::spawn({
         let counter = counter.clone();
         move || {
-            for _ in 0..10 {
+            for _ in 0..100 {
                 *counter.lock() += 1;
             }
         }
     });
 
-    for _ in 0..10 {
+    for _ in 0..100 {
         *counter.lock() += 1;
     }
 
     thread.join().unwrap();
 
-    assert_eq!(*counter.lock(), 20);
+    assert_eq!(*counter.lock(), 200);
 }
 ```
 
@@ -70,11 +70,44 @@ fn main() {
 
 The crate comes with a few feature flags that you may wish to use.
 
-- `lock_api` enabled support for [`lock_api`](https://crates.io/crates/lock_api)
+- `mutex` enables the `Mutex` type.
 
-- `ticket_mutex` uses a ticket lock for the implementation of `Mutex`
+- `spin_mutex` enables the `SpinMutex` type.
 
-- `std` enables support for thread yielding instead of spinning
+- `ticket_mutex` enables the `TicketMutex` type.
+
+- `use_ticket_mutex` switches to a ticket lock for the implementation of `Mutex`. This
+  is recommended only on targets for which ordinary spinning locks perform very badly
+  because it will change the implementation used by other crates that depend on `spin`.
+
+- `rwlock` enables the `RwLock` type.
+
+- `once` enables the `Once` type.
+
+- `lazy` enables the `Lazy` type.
+
+- `barrier` enables the `Barrier` type.
+
+- `lock_api` enables support for [`lock_api`](https://crates.io/crates/lock_api)
+
+- `std` enables support for thread yielding instead of spinning.
+
+- `portable_atomic` enables usage of the `portable-atomic` crate
+  to support platforms without native atomic operations (Cortex-M0, etc.).
+  The `portable_atomic_unsafe_assume_single_core` cfg or `critical-section` feature
+  of `portable-atomic` crate must also be set by the final binary crate.
+
+  When using the cfg, this can be done by adapting the following snippet to the `.cargo/config` file:
+  ```
+  [target.<target>]
+  rustflags = [ "--cfg", "portable_atomic_unsafe_assume_single_core" ]
+  ```
+  Note that this cfg is unsafe by nature, and enabling it for multicore systems is unsound.
+
+  When using the `critical-section` feature, you need to implement the critical-section
+  implementation that sound for your system by implementing an unsafe trait.
+  See [the documentation for the `portable-atomic` crate](https://docs.rs/portable-atomic/latest/portable_atomic/#optional-cfg)
+  for more information.
 
 ## Remarks
 
@@ -89,7 +122,21 @@ differ on the following:
 
 - Locks will not be poisoned in case of failure.
 - Threads will not yield to the OS scheduler when encounter a lock that cannot be
-accessed. Instead, they will 'spin' in a busy loop until the lock becomes available.
+  accessed. Instead, they will 'spin' in a busy loop until the lock becomes available.
+
+Many of the feature flags listed above are enabled by default. If you're writing a
+library, we recommend disabling those that you don't use to avoid increasing compilation
+time for your crate's users. You can do this like so:
+
+```
+[dependencies]
+spin = { version = "x.y", default-features = false, features = [...] }
+```
+
+## Minimum Safe Rust Version (MSRV)
+
+This crate is guaranteed to compile on a Minimum Safe Rust Version (MSRV) of 1.38.0 and above.
+This version will not be changed without a minor version bump.
 
 ## License
 
