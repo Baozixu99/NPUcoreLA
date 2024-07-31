@@ -1,5 +1,5 @@
 TARGET := loongarch64-unknown-linux-gnu
-TESTDIR := ./user_C_program/user
+#TESTDIR := ./user_C_program/user
 MODE := debug
 
 ifeq ($(BOARD), 2k1000)
@@ -23,9 +23,9 @@ env:
 	-rustup component add rust-src
 	-rustup component add llvm-tools-preview
 
-c-user:
-	cd ${TESTDIR} && make clean
-	cd ${TESTDIR} && make ARCH=${ARCH}
+# c-user:
+# 	cd ${TESTDIR} && make clean
+# 	cd ${TESTDIR} && make ARCH=${ARCH}
 
 rust-user: env $(APPS)
 ifeq ($(MODE),release)
@@ -36,6 +36,6 @@ endif
 
 clean:
 	@cargo clean
-	@cd ${TESTDIR} && make clean
+#	@cd ${TESTDIR} && make clean
 
 .PHONY: build c-user rust-user clean
