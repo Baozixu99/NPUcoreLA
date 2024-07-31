@@ -35,11 +35,6 @@ os/last-*
 tools/
 user/.ccls-cache/
 
-# Doc .org & .tex
-Doc/**/*.org
-Doc/**/*.tex
-Doc/**/*.jpg
-Doc/**/*.png
 
 #util
 util/qemu-2k500/

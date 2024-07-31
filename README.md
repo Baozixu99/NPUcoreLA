@@ -1,9 +1,15 @@
 # NPUcoreLA
 
 NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](https://gitlab.eduxiji.net/educg-group-17066-1466467/202310699111039-2789)，NPUcore+LA支持在QEMU-2K0500，以及龙芯2K0500上运行，为了满足大赛要求，我们对NPUcore+LA进行了适配工作（[适配qemu-2k1000工作](./docs/适配qemu-2k1000过程.md)），NPUcoreLA能够成功运行在QEMU-2K1000以及龙芯2K1000上。在初次提交测评时，NPUcoreLA得到了79分。经过修复部分测试用例后，我们最终满分通过了初赛的测试。目前，NPUcoreLA在QEMU-2K1000上已支持lua、busybox、lmbench以及部分系统调用测试用例。我们计划进一步添加对2K1000实机开发板的更多测试用例支持，同时探索支持ext4文件系统的过程。
-主要的工作内容如下：
-- 适配龙芯2K1000星云板
-- 修复测例从87分到满分
+**在NPUcore+LA的基础上，我们做的主要工作内容如下：**
+- **适配龙芯2K1000星云板**：NPUcoreLA能够在QEMU-2K1000以及龙芯2K1000上运行。
+- **修复测试用例**：将测评分数从79分提升到满分。
+- **修复NPUcoreLA中的bug**：包括修复sbrk、pipe、openat系统调用等。
+- **模块化内核结构**：拆解arch/register模块、virtio-drivers模块做成crate，便于后续模块化内核的工作。
+- **重构核心系统调用**：如sbrk、mmap、munmap、exec、getpid、fork、clone、open、write、fstat、link等系统调用。
+- **支持新的用户程序**：如打印三级页表结构，打印TCb信息。
+- **增加新的系统调用支持**：statx、getrandom、dup2等系统调用
+- **探索ext4实现（没有实现ext4）**：详细分析文档位于/docs中。
 
 ## NPUcoreLA系统架构图
 
@@ -44,10 +50,12 @@ make run
 - [QEMU运行NPUcoreLA步骤](./docs/qemu运行NPUcoreLA.md)
 - [核心系统调用的实现](./docs/核心系统调用的实现.md)
 - [rust学习记录](./docs/rust学习记录.md)
-- 内存管理
-- 进程管理
-- 文件系统
-- 系统调用
+- [内存管理](./docs/内存管理.md)
+- [进程管理](./docs/进程管理.md)
+- [文件系统](./docs/文件系统.md)
+- [系统调用](./docs/系统调用.md)
+- [NPUcore+使用说明](./docs/NPUcore+操作系统使用说明书.md)
+- [Ext4文件系统实现探索：与FAT32的比较分析](./docs/Ext4文件系统实现探索：与FAT32的比较分析.md)
 ## 目录结构
 
 ```shell
