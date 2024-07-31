@@ -41,8 +41,8 @@ make run
 - [QEMU运行NPUcoreLA步骤](./docs/qemu运行NPUcoreLA.md)
 - [核心系统调用的实现](./docs/核心系统调用的实现.md)
 - [rust学习记录](./docs/rust学习记录.md)
-- 内存管理
-- 进程管理
+- [内存管理](./docs/内存管理.md)
+- [进程管理](./docs/进程管理.md)
 - [文件系统](./docs/文件系统.md)
 - [系统调用](./docs/系统调用.md)
 - [NPUcore+操作系统使用说明书](./docs/NPUcore+操作系统使用说明书.md)
