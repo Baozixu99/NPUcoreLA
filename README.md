@@ -43,7 +43,7 @@ make run
 - [rust学习记录](./docs/rust学习记录.md)
 - 内存管理
 - 进程管理
-- 文件系统
+- [文件系统](./docs/文件系统.md)
 - [系统调用](./docs/系统调用.md)
 - [NPUcore+操作系统使用说明书](./docs/NPUcore+操作系统使用说明书.md)
 
