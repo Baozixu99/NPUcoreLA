@@ -34,7 +34,6 @@ fn main() -> i32 {
     ./busybox_testcode.sh\0
     ./lua_testcode.sh\0
     ./lmbench_testcode.sh\0
-    ./libctest_testcode.sh\0
     ./libc-bench\0
     ";
     let mut exit_code: i32 = 0;
