@@ -29,10 +29,11 @@ fn main() -> i32 {
         core::ptr::null(),
     ];
     let schedule_text: &str= "
-    echo aaa > lat_sig\0
+    echo bbb > lat_sig\0
     ./time-test\0
     ./busybox_testcode.sh\0
     ./lua_testcode.sh\0
+    ./lmbench_testcode.sh\0
     ./libctest_testcode.sh\0
     ./libc-bench\0
     ";
