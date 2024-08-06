@@ -6,7 +6,7 @@ NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](
 - **适配龙芯2K1000星云板**：NPUcoreLA能够在QEMU-2K1000以及龙芯2K1000上运行。
 - **修复测试用例**：将测评分数从79分提升到满分。
 - **修复NPUcoreLA中的bug**：包括修复sbrk、pipe、openat系统调用等。
-- **模块化内核结构**：拆解arch/register模块、virtio-drivers模块做成crate，便于后续模块化内核的工作。
+- **模块化内核结构**：拆解arch/register模块，便于后续模块化内核的工作。
 - **重构核心系统调用**：如sbrk、mmap、munmap、exec、getpid、fork、clone、open、write、fstat、link等系统调用。
 - **支持新的用户程序**：如打印三级页表结构，打印TCb信息。
 - **增加新的系统调用支持**：statx、getrandom、dup2等系统调用
