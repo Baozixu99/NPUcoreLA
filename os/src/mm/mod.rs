@@ -4,12 +4,13 @@ mod heap_allocator;
 mod map_area;
 mod memory_set;
 mod page_table;
+mod linear_map;
 #[cfg(feature = "zram")]
 mod zram;
 pub use crate::arch::KernelPageTableImpl;
 pub use crate::arch::PageTableImpl;
 use address::VPNRange;
-pub use address::PPNRange;
+
 pub use address::{PhysAddr, PhysPageNum, StepByOne, VirtAddr, VirtPageNum};
 pub use frame_allocator::{
     frame_alloc, frame_alloc_uninit, frame_dealloc, frame_reserve, unallocated_frames, FrameTracker,
