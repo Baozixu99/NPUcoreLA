@@ -1,0 +1,18 @@
+[package]
+name = "lwext4_rust_examples"
+version = "0.2.0"
+authors = ["Luoyuan Xiao <xiaoluoyuan@163.com>"]
+
+[dependencies]
+log = "0.4"
+cfg-if = "1.0"
+riscv = "0.8"
+linked_list_allocator = "0.10.5"
+lazy_static = { version = "1.4", features = ["spin_no_std"] }
+device_tree = { git = "https://github.com/rcore-os/device_tree-rs", rev = "2f2e55fb" }
+pci = { git = "https://github.com/elliott10/pci-rs.git", rev = "583a15bf" }
+virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers.git", rev = "61ece509" }
+lwext4_rust = { path = "../" }
+
+[features]
+board-fu740 = []
