@@ -55,7 +55,7 @@ make run
 - [进程管理](./docs/进程管理.md)
 - [文件系统](./docs/文件系统.md)
 - [系统调用](./docs/系统调用.md)
-- [NPUcore+使用说明](./docs/NPUcore+操作系统使用说明书.md)
+- [NPUcoreLA使用说明](./docs/NPUcoreLA操作系统使用说明书.md)
 - [Ext4文件系统实现探索：与FAT32的比较分析](./docs/Ext4文件系统实现探索：与FAT32的比较分析.md)
 ## 目录结构
 

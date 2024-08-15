@@ -138,15 +138,15 @@ la464-loongarch-cpu
 
 ### **3.QEMU**上运⾏**NPUcore**内核
 
-#### 3.1 拉取NPUcore+LA项目到本地
+#### 3.1 拉取NPUcoreLA项目到本地
 
-从仓库中拉取NPUcore+LA项目，仓库地址：https://gitlab.eduxiji.net/202310699111039/project1466467-172876
+从仓库中拉取NPUcoreLA项目，仓库地址：https://gitlab.eduxiji.net/202310699111039/project1466467-172876
 
 ``` bash
 git clone https://gitlab.eduxiji.net/202310699111039/project1466467-172876.git
 ```
 
-![拉取NPUcore+LA项目到本地](picture/拉取NPUcore+LA项目到本地.png)
+![拉取NPUcoreLA项目到本地](picture/拉取NPUcore+LA项目到本地.png)
 
 上图红框中的project1466467-172876就是我们拉取下来的项目了，由于文件名字太长，下面通过mv命令，将文件名字改成NPUcoreLA:
 
