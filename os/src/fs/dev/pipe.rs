@@ -178,9 +178,9 @@ impl File for Pipe {
         loop {
             let task = current_task().unwrap();
             let inner = task.acquire_inner_lock();
-            if !inner.sigpending.difference(inner.sigmask).is_empty() {
-                return ERESTART as usize;
-            }
+            // if !inner.sigpending.difference(inner.sigmask).is_empty() {
+            //     return ERESTART as usize;
+            // }
             drop(inner);
             drop(task);
             let mut ring = self.buffer.lock();
@@ -196,6 +196,7 @@ impl File for Pipe {
                 // suspend_current_and_run_next();
                 continue;
             }
+           // println!("pipe333");
             // We guarantee that this operation will read at least one byte
             while read_size < buf.len() {
                 let read_bytes = ring.buffer_read(&mut buf[read_size..]);
@@ -205,7 +206,7 @@ impl File for Pipe {
                     return read_size;
                 }
             }
-
+            //println!("pipe444");
             ring.status = RingBufferStatus::NORMAL;
             return read_size;
         }

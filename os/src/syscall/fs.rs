@@ -381,7 +381,97 @@ pub fn sys_close(fd: usize) -> isize {
         Err(errno) => errno,
     }
 }
+pub fn sys_splice(fd_in: usize, off_in: *mut usize, fd_out: usize, off_out: *mut usize, len: usize, flags:usize) -> isize{
+    let task = current_task().unwrap();
+    let fd_table = task.files.lock();
+    let in_file = match fd_table.get_ref(fd_in) {
+        Ok(file_descriptor) => file_descriptor,
+        Err(errno) => return errno,
+    };
+    let out_file: &FileDescriptor = match fd_table.get_ref(fd_out) {
+        Ok(file_descriptor) => file_descriptor,
+        Err(errno) => return errno,
+    };
+    if !in_file.readable() || !out_file.writable() {
+        return EBADF;
+    }
+    let token = task.get_user_token();
+    let off_in = if off_in.is_null() {
+        off_in
+    } else {
+        match translated_refmut(token, off_in) {
+            Ok(offset) => offset as *mut usize,
+            Err(errno) => return errno,
+        }
+    };
 
+    let off_out = if off_out.is_null() {
+        off_out
+    } else {
+        match translated_refmut(token, off_out) {
+            Ok(offset) => offset as *mut usize,
+            Err(errno) => return errno,
+        }
+    };
+    
+    unsafe {
+        if !off_in.is_null(){
+            let file_size = in_file.get_size();
+            if *off_in > file_size && (*off_in as isize) > 0 {
+                return 0;
+                }
+        }
+    }
+    unsafe {
+        println!("*off_in as isize:{}",*off_in as isize);
+        println!("{}",(*off_in as isize) < 0);
+    }
+    unsafe {
+        if (*off_in as isize) < 0 {
+          return -1;
+          }
+          if (*off_out as isize) < 0 {
+            return -1;
+        }
+      }
+    let mut left_bytes = len;
+    let mut total_bytes_spliced = 0;
+    const BUFFER_SIZE: usize = 4096;
+    let mut buffer = Vec::<u8>::with_capacity(BUFFER_SIZE);
+    println!("[sys_splice] fd_in: {},off_in:{:?}, fd_out: {},off_out:{:?}", fd_in,off_in,fd_out,off_out);
+    loop {    
+        let read_size = {
+            unsafe { buffer.set_len(left_bytes.min(BUFFER_SIZE)); }
+            println!("222");
+            let size = in_file.read(unsafe { off_in.as_mut() }, buffer.as_mut_slice());
+            println!("333");
+            if size < 0 {
+                return size as isize;
+            } else if size == 0 {
+                break;
+            }
+            unsafe { buffer.set_len(size); }
+            size
+        };
+        let write_size = out_file.write(unsafe { off_out.as_mut() }, buffer.as_slice());
+        if write_size < 0 {
+            return write_size as isize;
+        }
+        if write_size < read_size {
+            // Handle partial write by adjusting the offset or file position
+            let redundant_bytes = read_size - write_size;
+            if let Some(offset) = unsafe { off_in.as_mut() } {
+                *offset -= redundant_bytes;
+            } else if in_file.lseek(-(redundant_bytes as isize), SeekWhence::SEEK_CUR).is_err() {
+                panic!("Failed to adjust file position");
+            }
+        }
+
+        total_bytes_spliced += write_size;
+        left_bytes -= write_size;
+    }
+    total_bytes_spliced as isize
+}
 /// # Warning
 /// Only O_CLOEXEC is supported now
 pub fn sys_pipe2(pipefd: usize, flags: u32) -> isize {
