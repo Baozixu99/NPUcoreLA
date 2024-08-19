@@ -178,9 +178,9 @@ impl File for Pipe {
         loop {
             let task = current_task().unwrap();
             let inner = task.acquire_inner_lock();
-            // if !inner.sigpending.difference(inner.sigmask).is_empty() {
-            //     return ERESTART as usize;
-            // }
+            if !inner.sigpending.difference(inner.sigmask).is_empty() {
+                return ERESTART as usize;
+            }
             drop(inner);
             drop(task);
             let mut ring = self.buffer.lock();
