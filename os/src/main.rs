@@ -105,11 +105,11 @@ pub fn rust_main() -> ! {
     fs::directory_tree::init_fs();
     // fs::flush_preload();
     task::add_initproc();
-
     // note that in run_tasks(), there is yet *another* pre_start_init(),
     // which is used to turn on interrupts in some archs like LoongArch.
     task::run_tasks();
     panic!("Unreachable in rust_main!");
+    
 }
 
 #[cfg(test)]

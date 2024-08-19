@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-use user_lib::{exit, exec, fork, wait, waitpid, yield_, shutdown};
+use user_lib::{exec, exit, fork, shutdown, sleep, wait, waitpid, yield_};
 
 #[no_mangle]
 #[link_section = ".text.entry"]
@@ -28,6 +28,7 @@ fn main() -> i32 {
         "LD_LIBRARY_PATH=/\0".as_ptr(),
         core::ptr::null(),
     ];
+    sleep(9000);
     let schedule_text: &str= "
     echo bbb > lat_sig\0
     ./time-test\0
