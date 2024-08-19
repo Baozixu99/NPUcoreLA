@@ -28,7 +28,7 @@ fn main() -> i32 {
         "LD_LIBRARY_PATH=/\0".as_ptr(),
         core::ptr::null(),
     ];
-    sleep(9000);
+    sleep(9000) ;
     let schedule_text: &str= "
     echo bbb > lat_sig\0
     ./time-test\0
