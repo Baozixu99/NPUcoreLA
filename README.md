@@ -13,8 +13,7 @@ NPUcoreLA来自于2023年操作系统大赛功能赛二等奖作品[NPUcore+LA](
 - **探索ext4实现（没有实现ext4）**：详细分析文档位于/docs中。
 
 ## NPUcoreLA系统架构图（蓝色部分为增量）
-
-<img src="https://gitlab.eduxiji.net/T202410460992502/oskernel2024-npucorela/-/raw/main/docs/picture/NPUcore%E6%9E%B6%E6%9E%84%E5%9B%BE%EF%BC%88%E6%97%A0%E8%89%B2%E7%89%88%EF%BC%89.png?inline=false" width="60%">
+![NPUcoreLA系统架构图（蓝色部分为增量）](./docs/NPUcore架构图（无色版）.png)
 
 ## 基础环境配置
 
