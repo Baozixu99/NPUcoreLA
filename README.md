@@ -26,6 +26,17 @@ Loong Arch GCC 12：百度网盘链接: https://pan.baidu.com/s/1xHriNdgcNzzn-X9
 
 Loong Arch GCC 13： https://github.com/LoongsonLab/oscomp-toolchains-for-oskernel
 
+QEMU版本：qemu-2K1000
+
+GDB：loongarch64-unknown-linux-gnu-gdb
+
+**安装编译QEMU源码所需的依赖包:**
+```bash
+sudo apt install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+              gawk build-essential bison flex texinfo gperf libtool patchutils bc \
+              zlib1g-dev libexpat-dev pkg-config  libglib2.0-dev libpixman-1-dev libsdl2-dev \
+              git tmux python3 python3-pip ninja-build expect make cmake
+```
 ## 环境准备
 
 ```
