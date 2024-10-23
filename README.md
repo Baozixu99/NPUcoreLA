@@ -30,7 +30,7 @@ QEMU版本：qemu-2K1000
 
 GDB：loongarch64-unknown-linux-gnu-gdb
 
-**安装编译QEMU源码所需的依赖包:**
+**安装编译所需的依赖包:**
 ```bash
 sudo apt install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
               gawk build-essential bison flex texinfo gperf libtool patchutils bc \
